@@ -6,12 +6,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import nock from 'nock';
 import { WAConfigType } from '../types/config';
+import { HttpMethodsEnum } from '../types/enums';
 import WhatsApp from '../index';
 import { SDKVersion } from '../version';
 
 describe('WhatsApp SDK class', () => {
 	const sdkConfig: WAConfigType = (global as any).sdkConfig;
+
+	afterEach(() => {
+		nock.cleanAll();
+	});
 
 	it('Instantiate the SDK', () => {
 		process.env.WA_BASE_URL = sdkConfig.WA_BASE_URL;
@@ -58,5 +64,28 @@ describe('WhatsApp SDK class', () => {
 		const wa = new WhatsApp();
 
 		expect(wa.updateAccessToken(newAccessToken)).toBe(true);
+	});
+
+	it('uses updated credentials and sender for subsequent requests', async () => {
+		const wa = new WhatsApp();
+		wa.updateAccessToken('rotated-token');
+		wa.updateSenderNumberId(987654321);
+		const scope = nock(`https://${sdkConfig.WA_BASE_URL}`, {
+			reqheaders: { authorization: 'Bearer rotated-token' },
+		})
+			.get(`/${sdkConfig.CLOUD_API_VERSION}/987654321/test`)
+			.reply(200, { success: true });
+
+		try {
+			const response = await wa.requester.sendCAPIRequest(
+				HttpMethodsEnum.Get,
+				'test',
+				sdkConfig.REQUEST_TIMEOUT,
+			);
+			expect(await response.responseBodyToJSON()).toEqual({ success: true });
+			expect(scope.isDone()).toBe(true);
+		} finally {
+			wa.requester.client.clearSockets();
+		}
 	});
 });

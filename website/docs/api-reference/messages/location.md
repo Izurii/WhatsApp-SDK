@@ -9,9 +9,9 @@ Send a location message.
 ## Example:
 Send the Meta headquarter location to the phone number `12345678901`.
 ```js
-import WhatsApp from 'whatsapp';
+import WhatsApp from 'whatsapp-sdk-js';
 
-const senderNumber = 12345678901234567890;
+const senderNumber = '12345678901234567890';
 const wa = new WhatsApp( senderNumber );
 
 const meta_hq_location =
@@ -27,7 +27,7 @@ wa.messages.location( meta_hq_location, 12345678901 );
 
 ## Arguments
 1. `body` : [LocationObject](../types/LocationObject) — the object describing the location to send.
-2. `recipient` : number — the recipient's phone number with country code.
+2. `recipient` : string | number — the recipient's phone number with country code.
 3. `replyMessageId` : string (optional) — the received WhatsApp message Id to reply back to.
 
 ## Returns

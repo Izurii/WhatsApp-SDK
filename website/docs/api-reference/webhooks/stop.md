@@ -10,9 +10,9 @@ This stops the web server listening the defined port for webhook events.
 Start the web server and then stop it if it's running.
 
 ```js
-import WhatsApp from 'whatsapp';
+import WhatsApp from 'whatsapp-sdk-js';
 
-const senderNumber = 12345678901234567890;
+const senderNumber = '12345678901234567890';
 const wa = new WhatsApp( senderNumber );
 
 async function webhookCallbackFunction( statusCode, reqHeaders, body, resp, err )

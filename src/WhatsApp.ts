@@ -6,18 +6,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-if (
-	process.env.NODE_ENV !== 'production' ||
-	process.env.TS_NODE_DEV === 'true'
-) {
-	import('dotenv').then((dotenv) => dotenv.config());
-}
-
 import { WAConfigType } from './types/config';
 import { WhatsAppClass } from './types/WhatsApp';
 import * as SDKEnums from './types/enums';
 import { semanticVersionString } from './types/version';
-import { importConfig } from './utils';
+import { importConfig, validatePhoneNumberId } from './utils';
 import { SDKVersion } from './version';
 import Logger from './logger';
 import Requester from './requester';
@@ -35,7 +28,7 @@ const headerPrefix = 'WA_SDK';
 export default class WhatsApp implements WhatsAppClass {
 	config: WAConfigType;
 	sdkVersion: Readonly<semanticVersionString>;
-	requester: Readonly<Requester>;
+	readonly requester: Requester;
 
 	readonly messages: MessagesAPI;
 	readonly phoneNumbers: PhoneNumbersAPI;
@@ -43,7 +36,7 @@ export default class WhatsApp implements WhatsAppClass {
 	readonly webhooks: WebhooksAPI;
 	static readonly Enums = SDKEnums;
 
-	constructor(senderNumberId?: number) {
+	constructor(senderNumberId?: string | number) {
 		this.sdkVersion = SDKVersion;
 		this.config = importConfig(senderNumberId);
 		this.requester = new Requester(
@@ -87,14 +80,17 @@ export default class WhatsApp implements WhatsAppClass {
 		return true;
 	}
 
-	updateSenderNumberId(phoneNumberId: number): boolean {
+	updateSenderNumberId(phoneNumberId: string | number): boolean {
+		validatePhoneNumberId(phoneNumberId);
 		this.config[SDKEnums.WAConfigEnum.PhoneNumberId] = phoneNumberId;
+		this.requester.phoneNumberId = phoneNumberId;
 		LOGGER.log(`Updated sender phone number id to ${phoneNumberId}`);
 		return true;
 	}
 
 	updateAccessToken(accessToken: string): boolean {
 		this.config[SDKEnums.WAConfigEnum.AccessToken] = accessToken;
+		this.requester.accessToken = accessToken;
 		LOGGER.log(`Updated access token`);
 		return true;
 	}

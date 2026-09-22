@@ -6,34 +6,32 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-/* eslint-disable @typescript-eslint/no-var-requires */
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-const lightCodeTheme = require('prism-react-renderer/themes/github');
-const darkCodeTheme = require('prism-react-renderer/themes/dracula');
+const { themes } = require('prism-react-renderer');
+const lightCodeTheme = themes.github;
+const darkCodeTheme = themes.dracula;
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-	title:
-		'WhatsApp Business Platform Node.js SDK for the Cloud API, hosted by Meta',
-	tagline: 'WhatsApp Business Platform SDK',
+	title: 'whatsapp-sdk-js',
+	tagline: 'Node.js SDK for the WhatsApp Cloud API',
 	favicon: 'img/favicon.ico',
 
 	// Set the production url of your site here
-	url: 'https://your-docusaurus-test-site.com',
+	url: 'https://izurii.github.io',
 	// Set the /<baseUrl>/ pathname under which your site is served
 	// For GitHub pages deployment, it is often '/<projectName>/'
-	baseUrl: '/WhatsApp-Nodejs-SDK/',
+	baseUrl: '/WhatsApp-Js/',
 
 	// GitHub pages deployment config.
 	// If you aren't using GitHub pages, you don't need these.
-	organizationName: 'Meta', // Usually your GitHub org/user name.
-	projectName:
-		'WhatsApp Business Platform Node.js SDK for the Cloud API, hosted by Meta', // Usually your repo name.
+	organizationName: 'Izurii',
+	projectName: 'WhatsApp-Js',
 
 	onBrokenLinks: 'throw',
-	onBrokenMarkdownLinks: 'warn',
+	markdown: { hooks: { onBrokenMarkdownLinks: 'throw' } },
 
 	// Even if you don't use internalization, you can use this field to set useful
 	// metadata like html lang. For example, if your site is Chinese, you may want
@@ -53,8 +51,7 @@ const config = {
 					sidebarPath: require.resolve('./sidebars.js'),
 					// Please change this to your repo.
 					// Remove this to remove the "edit this page" links.
-					editUrl:
-						'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+					editUrl: 'https://github.com/Izurii/WhatsApp-Js/tree/main/website/',
 				},
 				blog: false,
 				theme: {
@@ -72,29 +69,20 @@ const config = {
 				// disableSwitch: false
 			},
 			// Replace with your project's social card
-			image: 'img/docusaurus-social-card.jpg',
+			image: 'img/wa_logo-216px.svg',
 			navbar: {
-				title:
-					'WhatsApp Business Platform Node.js SDK for the Cloud API, hosted by Meta',
+				title: 'whatsapp-sdk-js',
 				logo: {
 					alt: 'WhatsApp logo',
 					src: 'img/Digital_Glyph_Green.svg',
 				},
 				items: [
 					{
-						href: 'https://github.com/WhatsApp/WhatsApp-Nodejs-SDK',
+						href: 'https://github.com/Izurii/WhatsApp-Js',
 						label: 'GitHub',
 						position: 'right',
 					},
 				],
-			},
-			announcementBar: {
-				id: 'archived',
-				content:
-				  'The project is archived - go <a target="_blank" rel="noopener noreferrer" href="https://github.com/WhatsApp/WhatsApp-Nodejs-SDK/issues/31">this GitHub issue</a> to learn more.',
-				backgroundColor: '#fafbfc',
-				textColor: '#091E42',
-				isCloseable: false,
 			},
 			footer: {
 				style: 'dark',
@@ -130,7 +118,7 @@ const config = {
 						items: [
 							{
 								label: 'GitHub',
-								href: 'https://github.com/WhatsApp/WhatsApp-Nodejs-SDK',
+								href: 'https://github.com/Izurii/WhatsApp-Js',
 							},
 						],
 					},

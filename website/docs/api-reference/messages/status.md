@@ -4,38 +4,26 @@ title: .status
 ---
 
 # WhatsApp.messages.status()
-Mark a message as read.
+Mark a message as read, optionally displaying a typing indicator.
 
 ## Example:
-Listen for incoming message webhook events and mark as message as read once received.
+Use the ID of an incoming message from a verified webhook. The typing indicator
+is optional and automatically expires; it does not send a message.
 
 ```js
-import WhatsApp from 'whatsapp';
-
-const senderNumber = 12345678901234567890;
-const wa = new WhatsApp( senderNumber );
-
-async function custom_callback( statusCode, reqHeaders, body, resp, err )
-{
-    // Send a 200 so the webhooks service knows you received the message
-    if( resp )
-    {
-        resp.writeHead( statusCode );
-        resp.end();
-    }
-
-    // Mark message as read
-    if( body?.entry[ 0 ].changes[ 0 ].field == "messages" && body.entry[ 0 ].changes[ 0 ].value.messages )
-    {
-        message_status_read( body.entry[ 0 ].changes[ 0 ].value.messages[ 0 ].id );
-    }
-}
-
-wa.webhooks.start( custom_callback );
+const response = await wa.messages.status({
+	status: 'read',
+	message_id: 'wamid.incoming-message-id',
+	typing_indicator: { type: 'text' },
+});
+const result = await response.responseBodyToJSON();
+console.log(response.statusCode(), result.success);
 ```
 
 ## Arguments
 1. `body` : [StatusObject](../types/StatusObject) — the object describing the message status update.
 
 ## Returns
-Promise — Server response object on success.
+Promise of a response with `{ success: boolean }` on success. Check the HTTP
+status before treating the result as successful. HTTP API errors are returned
+as responses; network failures reject the promise.

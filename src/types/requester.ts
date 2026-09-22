@@ -36,8 +36,9 @@ export interface GeneralHeaderInterface extends RequestHeaders {
 	'User-Agent': string;
 }
 
-export interface RequesterResponseInterface<T extends ResponseJSONBody>
-	extends HttpsClientResponseClass {
+export interface RequesterResponseInterface<
+	T extends ResponseJSONBody,
+> extends HttpsClientResponseClass {
 	responseBodyToJSON: () => Promise<T>;
 }
 
@@ -45,7 +46,7 @@ export declare class RequesterClass {
 	constructor(
 		host: string,
 		apiVersion: string,
-		phoneNumberId: number,
+		phoneNumberId: string | number,
 		accessToken: string,
 		businessAcctId: string,
 		userAgent: string,

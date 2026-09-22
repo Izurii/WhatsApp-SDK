@@ -4,23 +4,21 @@
 // This source code is licensed under the license found in the
 // LICENSE file in the root directory of this source tree.
 //
-
 {
 	"compilerOptions": {
-		"baseUrl": "./",
 		"outDir": "build",
+		"rootDir": "src",
 		"allowJs": true,
-		"target": "ES2021",
-		"module": "CommonJS",
+		"target": "ES2022",
+		"module": "Node16",
 		"checkJs": true,
 		"strict": true,
 		"types": ["node", "jest"],
 		"declaration": true,
-		"incremental": true,
 		"noImplicitReturns": true,
 		"noFallthroughCasesInSwitch": true,
 		"esModuleInterop": true,
-		"moduleResolution": "node",
+		"moduleResolution": "Node16",
 		"isolatedModules": true,
 		"skipLibCheck": false,
 		"resolveJsonModule": true,

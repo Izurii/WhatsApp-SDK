@@ -6,16 +6,18 @@ tags:
   - Getting started
 ---
 
-# WhatsApp Business Platform Node.js SDK Quickstart
+# whatsapp-sdk-js Quickstart
 
-Learn how to quickly set up and use the Cloud API, hosted by Meta, Node.js SDK to send a message. In this quickstart, you'll only be sending messages via the Cloud API. Receiving messages involves setting up webhooks. For a more comprehensive baseline example to start from, you can use the [WhatsApp Node.js Project Template](https://github.com/WhatsApp/WhatsApp-Nodejs-Project-Template) instead of this quickstart.
+This guide sends a text message using the Cloud API. To receive messages, see
+[Receiving Messages](./receivingMessages.md). For changes from the original SDK,
+read the [migration notes](./migration.md).
 
 ## Prerequisites
 Before you begin:
 
-1. Install [Node.js](https://nodejs.org/) version 16 or later.
+1. Install [Node.js](https://nodejs.org/) 22.22.2 or later. Node 24 LTS is recommended.
 2. Complete the steps in the [official docs](https://developers.facebook.com/docs/whatsapp/cloud-api/get-started#set-up-developer-assets) for getting started with the Cloud API. Stop once you've [sent a test message](https://developers.facebook.com/docs/whatsapp/cloud-api/get-started#sent-test-message).
-3. Respond to that message with anything. This puts the conversation into a [user-initiated conversations](https://developers.facebook.com/docs/whatsapp/conversation-types) session, which allows other messages to be received via API calls for 24-hours.
+3. Reply to the test message to open the 24-hour customer service window. Free-form messages require this window; outside it, use an approved template.
 
 ## Create
 Open a new terminal window. Create a new directory for your project and then go to that directory.
@@ -31,10 +33,10 @@ Use the npm command to create a simple project definition file (package.json).
 npm init --yes
 ```
 
-Install the WhatsApp Business Platform Node.js SDK for the Cloud API, hosted by Meta.
+Install the SDK:
 
 ```shell
-npm install whatsapp
+npm install whatsapp-sdk-js
 ```
 
 ## Configure
@@ -52,52 +54,51 @@ WA_PHONE_NUMBER_ID=
 CLOUD_API_ACCESS_TOKEN=
 
 # Cloud API version number.
-CLOUD_API_VERSION=v16.0
+CLOUD_API_VERSION=v26.0
 ```
 
 ## Code
-In your project directory, create a file named *start.js* with the following content with the sender number and recipient number:
+Create a CommonJS file named *start.js*. Set the recipient to your verified
+test recipient's number as a string. The sender ID is read from the environment.
 ```js
-import WhatsApp from 'whatsapp';
+const WhatsApp = require('whatsapp-sdk-js');
+const wa = new WhatsApp();
 
-// Your test sender phone number
-const wa = new WhatsApp( <<SENDER_NUMBER>> );
-
-// Enter the recipient phone number
-const recipient_number = <<RECIPIENT_NUMBER>>;
-
-async function send_message()
-{
-    try{
-        const sent_text_message = wa.messages.text( { "body" : "Hello world" }, recipient_number );
-
-        await sent_text_message.then( ( res ) =>
-        {
-            console.log( res.rawResponse() );
-        } );
-    }
-    catch( e )
-    {
-        console.log( JSON.stringify( e ) );
+async function main() {
+    try {
+        const response = await wa.messages.text({ body: 'Hello world' }, '15555550101');
+        const body = await response.responseBodyToJSON();
+        if (response.statusCode() >= 400) {
+            throw new Error(`Cloud API returned HTTP ${response.statusCode()}`);
+        }
+        console.log(body.messages[0].id);
+    } finally {
+        wa.requester.client.clearSockets();
     }
 }
 
-send_message();
+main().catch((error) => {
+    console.error(error.message);
+    process.exitCode = 1;
+});
 ```
 
 ## Anatomy
 What the code above is doing is:
-1. Creating a new instance of the WhatsApp class. This automatically reads from the *.env* file that was edited.
+1. Creates the WhatsApp client using environment variables loaded before construction.
 2. Sending a text type message with the text "Hello world" to the WhatsApp recipient.
-3. After the message is sent, it logs the raw response body from the response object to stdout.
-4. If there was an error in the request, it will log those to stdout. Look for the "details" value for a human-readable explanation for the error if the Cloud API sent a response.
+3. Reads the response body and checks the HTTP status. HTTP API errors are returned as responses; transport errors reject the promise.
+4. Logs the accepted message ID or a sanitized error, then closes idle sockets.
 
 ## Run
 Run your application by putting in the following command into terminal:
 ```shell
-npm start.js
+node --env-file=.env start.js
 ```
 
 :::note
-Verify that the test recipient has received the message and the Cloud API shows a *statusCode* of `200` response. If you received a `200` from the Cloud API, but did not receive the message in WhatsApp, your conversation may have gone beyond the 24-hour user-initiated conversation session. Simply resend a message from the recipient WhatsApp app and then restart your quickstart app to send a new message to the recipient.
+A successful HTTP response means the message was accepted, not delivered. Use
+status webhooks to track delivery, reads, or failures. Check the recipient,
+customer service window, account restrictions, and webhook error details when
+delivery fails. Do not automatically resend, as this can create duplicate messages.
 :::

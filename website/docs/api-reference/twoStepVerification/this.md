@@ -4,12 +4,12 @@ title: this
 ---
 
 # Two-step verification class
-This is the two-step verification class that is instantiated by the WhatsApp class. The two-step verification class object can be referenced with <<SDK_NAMESPACE>>.twoStepVerification to access the member functions.
+This is the two-step verification class that is instantiated by the WhatsApp class. The two-step verification class object can be referenced with `wa.twoStepVerification` to access the member functions.
 
 ## Example:
 Set the two-step verification pin to `123456`.
 ```js
-import WhatsApp from 'whatsapp';
+import WhatsApp from 'whatsapp-sdk-js';
 
 const senderNumberId = 12345678901234567890;
 const wa = new WhatsApp( senderNumberId );

@@ -16,34 +16,21 @@ permissions:
   contents: read # to fetch code (actions/checkout)
 
 jobs:
-  prepare-yarn-cache-ubuntu:
-    uses: ./.github/workflows/prepare-cache.yml
-    with:
-      os: ubuntu-latest
-  prepare-yarn-cache-macos:
-    uses: ./.github/workflows/prepare-cache.yml
-    with:
-      os: macos-latest
-  prepare-yarn-cache-windows:
-    uses: ./.github/workflows/prepare-cache.yml
-    with:
-      os: windows-latest
-
   lint:
     name: Lint
     runs-on: ubuntu-latest
-    needs: prepare-yarn-cache-ubuntu
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v7.0.0
         with:
-          node-version: lts/*
-          cache: yarn
+          node-version-file: .node-version
+      - name: enable Yarn 4
+        run: corepack enable
       - name: install
-        run: yarn --immutable
+        run: yarn install --immutable
       - name: build
         run: yarn build
       - name: run cspell
@@ -56,19 +43,18 @@ jobs:
         run: yarn check-changelog
       - name: check copyright headers
         run: yarn check-copyright-headers
+      - name: audit dependencies
+        run: yarn npm audit --all --recursive --no-deprecations
 
   test-ubuntu:
     uses: ./.github/workflows/test.yml
-    needs: prepare-yarn-cache-ubuntu
     with:
       os: ubuntu-latest
   test-macos:
     uses: ./.github/workflows/test.yml
-    needs: prepare-yarn-cache-macos
     with:
       os: macos-latest
   test-windows:
     uses: ./.github/workflows/test.yml
-    needs: prepare-yarn-cache-windows
     with:
       os: windows-latest

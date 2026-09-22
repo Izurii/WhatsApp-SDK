@@ -18,9 +18,9 @@ Send an existing self-hosted or Meta hosted document. Supported document formats
 ## Example:
 Send a Meta-hosted message and then send an externally hosted document to the phone number `12345678901`.
 ```js
-import WhatsApp from 'whatsapp';
+import WhatsApp from 'whatsapp-sdk-js';
 
-const senderNumber = 12345678901234567890;
+const senderNumber = '12345678901234567890';
 const wa = new WhatsApp( senderNumber );
 
 const meta_hosted_document =
@@ -43,7 +43,7 @@ wa.messages.document( self_hosted_document, 12345678901 );
 
 ## Arguments
 1. `body` : [DocumentMediaObject](../types/DocumentMediaObject) — the object describing the document to send.
-2. `recipient` : number — the recipient's phone number with country code.
+2. `recipient` : string | number — the recipient's phone number with country code.
 3. `replyMessageId` : string (optional) — the received WhatsApp message Id to reply back to.
 
 ## Returns

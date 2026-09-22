@@ -9,7 +9,7 @@ Retrieves the semantically formatted SDK version.
 ## Example:
 Get the SDK version:
 ```js
-import WhatsApp from 'whatsapp';
+import WhatsApp from 'whatsapp-sdk-js';
 
 const senderNumber = 12345678901;
 const wa = new WhatsApp( senderNumber );

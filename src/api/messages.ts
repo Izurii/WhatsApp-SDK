@@ -16,11 +16,6 @@ import {
 } from '../types/enums';
 import { RequestData } from '../types/httpsClient';
 import * as m from '../types/messages';
-import Logger from '../logger';
-
-const LIB_NAME = 'MESSAGES_API';
-const LOG_LOCAL = false;
-const LOGGER = new Logger(LIB_NAME, process.env.DEBUG === 'true' || LOG_LOCAL);
 
 export default class MessagesAPI extends BaseAPI implements m.MessagesClass {
 	private readonly commonMethod = HttpMethodsEnum.Post;
@@ -30,11 +25,12 @@ export default class MessagesAPI extends BaseAPI implements m.MessagesClass {
 		type: T,
 		payload:
 			| m.AudioMediaObject
-			| [m.ContactObject]
+			| m.ContactObject[]
 			| m.DocumentMediaObject
 			| m.ImageMediaObject
 			| m.InteractiveObject
 			| m.LocationObject
+			| m.ReactionObject
 			| m.MessageTemplateObject<C>
 			| m.StickerMediaObject
 			| m.TextObject
@@ -55,9 +51,9 @@ export default class MessagesAPI extends BaseAPI implements m.MessagesClass {
 		return body;
 	}
 
-	send(
+	send<T extends Record<string, any> = m.MessagesResponse>(
 		body: RequestData,
-	): Promise<RequesterResponseInterface<m.MessagesResponse>> {
+	): Promise<RequesterResponseInterface<T>> {
 		return this.client.sendCAPIRequest(
 			this.commonMethod,
 			this.commonEndpoint,
@@ -68,7 +64,7 @@ export default class MessagesAPI extends BaseAPI implements m.MessagesClass {
 
 	async audio(
 		body: m.AudioMediaObject,
-		recipient: number,
+		recipient: string | number,
 		replyMessageId?: string,
 	): Promise<RequesterResponseInterface<m.MessagesResponse>> {
 		return this.send(
@@ -84,8 +80,8 @@ export default class MessagesAPI extends BaseAPI implements m.MessagesClass {
 	}
 
 	async contacts(
-		body: [m.ContactObject],
-		recipient: number,
+		body: m.ContactObject[],
+		recipient: string | number,
 		replyMessageId?: string,
 	): Promise<RequesterResponseInterface<m.MessagesResponse>> {
 		return this.send(
@@ -102,7 +98,7 @@ export default class MessagesAPI extends BaseAPI implements m.MessagesClass {
 
 	async document(
 		body: m.DocumentMediaObject,
-		recipient: number,
+		recipient: string | number,
 		replyMessageId?: string,
 	): Promise<RequesterResponseInterface<m.MessagesResponse>> {
 		return this.send(
@@ -119,7 +115,7 @@ export default class MessagesAPI extends BaseAPI implements m.MessagesClass {
 
 	async image(
 		body: m.ImageMediaObject,
-		recipient: number,
+		recipient: string | number,
 		replyMessageId?: string,
 	): Promise<RequesterResponseInterface<m.MessagesResponse>> {
 		return this.send(
@@ -136,7 +132,7 @@ export default class MessagesAPI extends BaseAPI implements m.MessagesClass {
 
 	async interactive(
 		body: m.InteractiveObject,
-		recipient: number,
+		recipient: string | number,
 		replyMessageId?: string,
 	): Promise<RequesterResponseInterface<m.MessagesResponse>> {
 		return this.send(
@@ -153,7 +149,7 @@ export default class MessagesAPI extends BaseAPI implements m.MessagesClass {
 
 	async location(
 		body: m.LocationObject,
-		recipient: number,
+		recipient: string | number,
 		replyMessageId?: string,
 	): Promise<RequesterResponseInterface<m.MessagesResponse>> {
 		return this.send(
@@ -170,7 +166,7 @@ export default class MessagesAPI extends BaseAPI implements m.MessagesClass {
 
 	async sticker(
 		body: m.StickerMediaObject,
-		recipient: number,
+		recipient: string | number,
 		replyMessageId?: string,
 	): Promise<RequesterResponseInterface<m.MessagesResponse>> {
 		return this.send(
@@ -187,7 +183,7 @@ export default class MessagesAPI extends BaseAPI implements m.MessagesClass {
 
 	async template(
 		body: m.MessageTemplateObject<ComponentTypesEnum>,
-		recipient: number,
+		recipient: string | number,
 		replyMessageId?: string,
 	): Promise<RequesterResponseInterface<m.MessagesResponse>> {
 		return this.send(
@@ -204,10 +200,9 @@ export default class MessagesAPI extends BaseAPI implements m.MessagesClass {
 
 	async text(
 		body: m.TextObject,
-		recipient: number,
+		recipient: string | number,
 		replyMessageId?: string,
 	): Promise<RequesterResponseInterface<m.MessagesResponse>> {
-		LOGGER.log(body);
 		return this.send(
 			JSON.stringify(
 				this.bodyBuilder(
@@ -222,7 +217,7 @@ export default class MessagesAPI extends BaseAPI implements m.MessagesClass {
 
 	async video(
 		body: m.VideoMediaObject,
-		recipient: number,
+		recipient: string | number,
 		replyMessageId?: string,
 	): Promise<RequesterResponseInterface<m.MessagesResponse>> {
 		return this.send(
@@ -237,12 +232,23 @@ export default class MessagesAPI extends BaseAPI implements m.MessagesClass {
 		);
 	}
 
+	async reaction(
+		body: m.ReactionObject,
+		recipient: string | number,
+	): Promise<RequesterResponseInterface<m.MessagesResponse>> {
+		return this.send(
+			JSON.stringify(
+				this.bodyBuilder(MessageTypesEnum.Reaction, body, recipient.toString()),
+			),
+		);
+	}
+
 	async status(
 		body: m.StatusObject,
-	): Promise<RequesterResponseInterface<m.MessagesResponse>> {
+	): Promise<RequesterResponseInterface<{ success: boolean }>> {
 		const mp: m.GeneralMessageBody = { messaging_product: 'whatsapp' };
 		const bodyToSend: m.StatusRequestBody = Object.assign(mp, body);
 
-		return this.send(JSON.stringify(bodyToSend));
+		return this.send<{ success: boolean }>(JSON.stringify(bodyToSend));
 	}
 }

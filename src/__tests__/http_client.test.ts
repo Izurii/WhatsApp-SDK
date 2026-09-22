@@ -7,9 +7,11 @@
  */
 
 import nock from 'nock';
+import { IncomingMessage } from 'node:http';
+import { Socket } from 'node:net';
 import { WAConfigType } from '../types/config';
 import { HttpMethodsEnum } from '../types/enums';
-import HttpsClient from '../httpsClient';
+import HttpsClient, { HttpsClientResponse } from '../httpsClient';
 
 describe('HTTPS client tests', () => {
 	const sdkConfig: WAConfigType = (global as any).sdkConfig;
@@ -22,7 +24,70 @@ describe('HTTPS client tests', () => {
 	let scope;
 
 	afterEach(() => {
-		nock.restore();
+		nock.cleanAll();
+	});
+
+	afterAll(() => {
+		client.clearSockets();
+	});
+
+	it('returns the same decoded body on repeated reads', async () => {
+		const incoming = new IncomingMessage(new Socket());
+		incoming.push(Buffer.from('{"success":true}'));
+		incoming.push(null);
+		const response = new HttpsClientResponse(incoming);
+		expect(await response.responseBodyToJSON()).toEqual({ success: true });
+		expect(await response.responseBodyToJSON()).toEqual({ success: true });
+	});
+
+	it('rejects interrupted response streams without hanging', async () => {
+		const incoming = new IncomingMessage(new Socket());
+		const response = new HttpsClientResponse(incoming);
+		const body = response.responseBodyToJSON();
+		incoming.destroy(new Error('Connection interrupted'));
+		await expect(body).rejects.toThrow('Connection interrupted');
+	});
+
+	it('rejects malformed response JSON', async () => {
+		const incoming = new IncomingMessage(new Socket());
+		incoming.push(Buffer.from('invalid'));
+		incoming.push(null);
+		await expect(
+			new HttpsClientResponse(incoming).responseBodyToJSON(),
+		).rejects.toThrow(SyntaxError);
+	});
+
+	it('returns a recognizable request timeout', async () => {
+		nock(`https://${sdkConfig.WA_BASE_URL}`)
+			.get('/slow')
+			.delayConnection(100)
+			.reply(200, {});
+		await expect(
+			client.sendRequest(
+				sdkConfig.WA_BASE_URL,
+				443,
+				'/slow',
+				'GET',
+				reqHeaders,
+				10,
+			),
+		).rejects.toMatchObject({ code: 'ETIMEDOUT' });
+	});
+
+	it('allows POST requests without a body', async () => {
+		const request = nock(`https://${sdkConfig.WA_BASE_URL}`)
+			.post('/empty')
+			.reply(200, {});
+		const response = await client.sendRequest(
+			sdkConfig.WA_BASE_URL,
+			443,
+			'/empty',
+			'POST',
+			reqHeaders,
+			1000,
+		);
+		expect(await response.responseBodyToJSON()).toEqual({});
+		expect(request.isDone()).toBe(true);
 	});
 
 	it('Send a POST request', async () => {

@@ -10,9 +10,9 @@ Gets the status of the webhook web server.
 Start the web server and check if it's running after 5 seconds from application start.
 
 ```js
-import WhatsApp from 'whatsapp';
+import WhatsApp from 'whatsapp-sdk-js';
 
-const senderNumber = 12345678901234567890;
+const senderNumber = '12345678901234567890';
 const wa = new WhatsApp( senderNumber );
 
 async function webhookCallbackFunction( statusCode, reqHeaders, body, resp, err )

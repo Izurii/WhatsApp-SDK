@@ -25,14 +25,14 @@ describe('Helper utilities', () => {
 	test('failed configuration import—sender number id', () => {
 		expect(() => {
 			u.importConfig();
-		}).toThrowError('Missing WhatsApp sender phone number Id.');
+		}).toThrow('Missing WhatsApp sender phone number Id.');
 	});
 
 	test('failed configuration import—', () => {
 		process.env.WA_PHONE_NUMBER_ID = sdkConfig.WA_PHONE_NUMBER_ID.toString();
 		expect(() => {
 			u.importConfig();
-		}).toThrowError('Invalid configuration.');
+		}).toThrow('Invalid configuration.');
 	});
 
 	it('successful configuration import', () => {
@@ -50,4 +50,34 @@ describe('Helper utilities', () => {
 		process.env.REQUEST_TIMEOUT = sdkConfig.REQUEST_TIMEOUT.toString();
 		expect(u.importConfig()).toEqual(sdkConfig);
 	});
+
+	it('preserves IDs beyond the safe integer range without rounding', () => {
+		const original = process.env.WA_PHONE_NUMBER_ID;
+		try {
+			process.env.WA_PHONE_NUMBER_ID = '9007199254740993';
+			expect(u.importConfig().WA_PHONE_NUMBER_ID).toBe('9007199254740993');
+		} finally {
+			process.env.WA_PHONE_NUMBER_ID = original;
+		}
+	});
+
+	it('does not expose the removed retry setting', () => {
+		const original = process.env.MAX_RETRIES_AFTER_WAIT;
+		try {
+			process.env.MAX_RETRIES_AFTER_WAIT = '30';
+			expect(u.importConfig()).not.toHaveProperty('MAX_RETRIES_AFTER_WAIT');
+		} finally {
+			if (original === undefined) delete process.env.MAX_RETRIES_AFTER_WAIT;
+			else process.env.MAX_RETRIES_AFTER_WAIT = original;
+		}
+	});
+
+	it.each([Number.MAX_SAFE_INTEGER + 1, -1, 1.5, '', '../messages'])(
+		'rejects unsafe sender ID %s',
+		(identifier) => {
+			expect(() => u.validatePhoneNumberId(identifier)).toThrow(
+				'Phone number ID',
+			);
+		},
+	);
 });

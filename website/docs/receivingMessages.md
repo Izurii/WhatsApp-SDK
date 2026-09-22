@@ -7,7 +7,7 @@ title: Receiving Messages
 The SDK provides a convenience method for creating a web server to receive incoming [Cloud API webhook notification](https://developers.facebook.com/docs/whatsapp/cloud-api/webhooks/components) payloads and creating your own custom logic. This web server currently uses a single process and is not intended for multi-instance environments. You can use the utilities to build your own or contribute to this open source project.
 
 ## Prerequisites
-1. Install [Node.js](https://nodejs.org/) version 16 or later.
+1. Install [Node.js](https://nodejs.org/) 22.22.2 or later.
 2. A publicly accessible HTTPS (not HTTP) URL. For development, you can use tools such as [Ngrok](https://ngrok.io/) or [localtunnel](https://github.com/localtunnel/localtunnel) to route a tunnel to the listener port.
 3. Have a working [quickstart](/) application.
 
@@ -16,6 +16,7 @@ Open the *.env* file in the root directory, add the values for the following var
 1. **WEBHOOK_ENDPOINT** - The listener path for your application. Recommend setting the environmental variable to `webhook`.
 2. **WEBHOOK_VERIFICATION_TOKEN** - This is a secret string that the Cloud API will send in it's subscribe message payload so you can verify it's a trusted source. Recommended you use a long string of alpha-numerics.
 3. **LISTENER_PORT** - The network port the application will listen on. Leaving this empty will set it to the default port 3000.
+4. **M4D_APP_SECRET** - Your Meta application secret, required to authenticate webhook signatures. This is distinct from the verification token.
 
 The *.env* file should look like
 ```shell
@@ -26,11 +27,14 @@ WA_PHONE_NUMBER_ID=
 CLOUD_API_ACCESS_TOKEN=
 
 # Cloud API version number.
-CLOUD_API_VERSION=v16.0
+CLOUD_API_VERSION=v26.0
+
+# Required to verify incoming webhook signatures.
+M4D_APP_SECRET=
 
 # Customize your incoming webhook listener endpoint. Path should be https://{host}/{WEBHOOK_ENDPOINT}.
 # A trailing slash is not added by default, so the variable should include that if it's required by your API gateway.
-WEBHOOK_ENDPOINT=webhook/
+WEBHOOK_ENDPOINT=webhook
 
 # A custom verification token string to validate incoming webhook payloads.
 # Needs to match webhook configuration.
@@ -41,48 +45,41 @@ LISTENER_PORT=3000
 ```
 
 ## Code
-Create a new file called *listen.js* file and add the following code`:
+Create a CommonJS file named *listen.js*:
 
 ```js
-import WhatsApp from "whatsapp";
-
-const senderNumber = 12345678901234567890;
+const WhatsApp = require('whatsapp-sdk-js');
 const wa = new WhatsApp();
 
-function custom_callback ( statusCode, headers, body, resp, err )
-{
-    console.log(
-        `Incoming webhook status code: ${ statusCode }\n\nHeaders:
-        ${ JSON.stringify( headers ) }\n\nBody: ${ JSON.stringify( body ) }`
-    );
+wa.webhooks.start((statusCode, headers, body, response, error) => {
+	if (error) {
+		console.error(`Webhook rejected: ${statusCode}`);
+		return;
+	}
+	console.log(`Received ${body.entry.length} webhook entries`);
+	response.end();
+});
 
-    if( resp )
-    {
-        resp.writeHead(200, { "Content-Type": "text/plain" });
-        resp.end();
-    }
-
-    if( err )
-    {
-        console.log( `ERROR: ${ err }` );
-    }
-}
-
-wa.webhooks.start( custom_callback );
+process.once('SIGTERM', () => {
+	wa.webhooks.stop(() => wa.requester.client.clearSockets());
+});
 ```
 
 ## Anatomy
 The code above has a custom callback function that receives an several parameters, including the response object to respond back to the Cloud API, and starts the webhook listener. From top to bottom:
 1. Creates a new instance of the WhatsApp SDK class.
-2. Logs the status code of the request, the headers received, and the request body. You should see it print a status code of `200`.
-3. After checking for the response body, it sends a `200` (success) back to the Cloud API for this request. This marks the message as delivered (see [messages.status()](./api-reference/messages/status) to also mark message as read) and the webhook service will not reattempt sending this message again.
-4. Any errors are logged.
-5. The webhooks listener is started. This accepts either a **GET** request or **POST**. Only post requests call the custom callback. GET requests are only for verifying subscription by the Cloud API.
+2. Verifies each POST signature against the raw body before parsing JSON or invoking the success callback.
+3. Responds with HTTP 200 to acknowledge receipt. This does not mark a message as read or guarantee delivery. Use [messages.status()](./api-reference/messages/status.md) for read receipts. Production handlers should persist or enqueue events before acknowledging them, and deduplicate by message ID.
+4. Rejected requests report an error without exposing unauthenticated payloads to the callback.
+5. GET requests verify subscriptions. Verification failures also invoke the error callback. Unknown paths return 404, unsupported methods return 405, missing/invalid signatures return 401, signed malformed JSON returns 400, and bodies larger than 1 MB return 413.
+
+The successful callback owns the HTTP response and must call `response.end()`
+promptly. Handle application errors and asynchronous work inside your callback.
 
 ## Run
 Run your application by putting in the following command into terminal:
 ```
-npm listen.js
+node --env-file=.env listen.js
 ```
 The application will start the HTTP server. It's ready to verify subscription from the Cloud API, and then receive incoming messages and call the callback function.
 

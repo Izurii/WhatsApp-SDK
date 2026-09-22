@@ -4,15 +4,15 @@ title: this
 ---
 
 # Webhooks class
-This is the webhooks class that is instantiated by the WhatsApp class. The webhooks class object can be referenced with <<SDK_NAMESPACE>>.webhooks to access the member functions.
+This is the webhooks class that is instantiated by the WhatsApp class. The webhooks class object can be referenced with `wa.webhooks` to access the member functions.
 
 ## Example:
 Start the web server and print out the response status code, request headers, and if it exists, the body.
 
 ```js
-import WhatsApp from 'whatsapp';
+import WhatsApp from 'whatsapp-sdk-js';
 
-const senderNumber = 12345678901234567890;
+const senderNumber = '12345678901234567890';
 const wa = new WhatsApp( senderNumber );
 
 async function custom_callback( statusCode, reqHeaders, body, resp, err )

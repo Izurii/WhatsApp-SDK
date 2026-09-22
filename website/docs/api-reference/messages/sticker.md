@@ -11,9 +11,9 @@ Send an existing self-hosted or Meta hosted sticker. Static and animated third-p
 ## Example:
 Send a Meta-hosted message and then send an externally hosted sticker to the phone number `12345678901`.
 ```js
-import WhatsApp from 'whatsapp';
+import WhatsApp from 'whatsapp-sdk-js';
 
-const senderNumber = 12345678901234567890;
+const senderNumber = '12345678901234567890';
 const wa = new WhatsApp( senderNumber );
 
 const meta_hosted_sticker =
@@ -32,7 +32,7 @@ wa.messages.sticker( self_hosted_sticker, 12345678901 );
 
 ## Arguments
 1. `body` : [StickerMediaObject](../types/StickerMediaObject) — the object describing the sticker to send.
-2. `recipient` : number — the recipient's phone number with country code.
+2. `recipient` : string | number — the recipient's phone number with country code.
 3. `replyMessageId` : string (optional) — the received WhatsApp message Id to reply back to.
 
 ## Returns

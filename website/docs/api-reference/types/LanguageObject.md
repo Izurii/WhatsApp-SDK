@@ -15,5 +15,5 @@ The object describing the message template language.
 ```
 
 ## Properties
-1. `policy` : "deterministic" — the language policy the message should follow. The only supported option is *deterministic*.
+1. `policy` : "deterministic" (optional) - the only supported language policy. It can be omitted.
 2. `code` : string — the two-character code of the language or locale to use. For all codes, see [Supported Languages](https://developers.facebook.com/docs/whatsapp/api/messages/message-templates#supported-languages).

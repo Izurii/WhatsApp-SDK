@@ -5,6 +5,34 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.1.0-alpha.0] - 2026-09-21
+### Added
+- Publish npm releases from version tags with trusted publishing and verified build artifacts.
+
+### Changed
+- Require Node.js 22.22.2+ and test supported Node 22/24 LTS releases.
+- Upgrade TypeScript, Jest, ESLint, Prettier, Docusaurus, React, CI actions, and locked dependencies.
+- Keep Babel 7 and TypeScript 6 for current peer compatibility; document the rationale.
+- Load environment files explicitly in applications instead of asynchronously during SDK import.
+- Preserve string sender identifiers and accept string message recipients.
+- Correct outgoing message/template types and incoming webhook metadata, optional fields, replies, and pricing types.
+- Add reaction messages, CTA URL/Flow/location-request payloads, and typing indicators.
+- Make formatting checks read-only and build documentation on pull requests.
+- Use Yarn 4.18.0 in both projects with immutable installs and explicit build-time version generation.
+
+### Removed
+- Remove the unused MAX_RETRIES_AFTER_WAIT configuration and enum member instead of advertising retries that never ran.
+- Remove the unused dotenv development dependency; applications can use Node's synchronous environment-file loader.
+
+### Fixed
+- Apply access-token and sender updates to subsequent HTTP requests.
+- Repair request dispatch, deadlines, repeated JSON reads, and response stream errors.
+- Repair webhook buffering, timing-safe signature checks, error responses, body limits, and server lifecycle.
+- Remove secret and message-body logging.
+- Fix deterministic version generation, MDX compatibility, and stale setup examples.
+- Correct ESM package declarations and public enum compatibility with isolated TypeScript consumers.
+- Refresh dependency lockfiles and patch vulnerable documentation transitive dependencies.
+
 ## [0.0.5-Alpha] - 2023-04-11
 ### Added
 - Two-step verification API.

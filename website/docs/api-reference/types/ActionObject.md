@@ -32,8 +32,7 @@ The object describing a actions taken for different types interactive messages. 
         "product_items":
         [
             { "product_retailer_id": "product-SKU-in-catalog" },
-            { "product_retailer_id": "product-SKU-in-catalog" },
-
+            { "product_retailer_id": "product-SKU-in-catalog" }
         ]
         },
         {
@@ -41,7 +40,7 @@ The object describing a actions taken for different types interactive messages. 
         "product_items":
         [
             { "product_retailer_id": "product-SKU-in-catalog" },
-            { "product_retailer_id": "product-SKU-in-catalog" },
+            { "product_retailer_id": "product-SKU-in-catalog" }
         ]
         }
     ]

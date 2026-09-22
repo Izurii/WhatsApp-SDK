@@ -6,28 +6,28 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export const enum HttpMethodsEnum {
+export enum HttpMethodsEnum {
 	Get = 'GET',
 	Post = 'POST',
 	Put = 'PUT',
 	Delete = 'DELETE',
 }
 
-export const enum MessageTypesEnum {
+export enum MessageTypesEnum {
 	Audio = 'audio', // for audio messages.
 	Contacts = 'contacts', // for contact messages.
 	Document = 'document', // for document messages.
 	Image = 'image', // for image messages.
 	Interactive = 'interactive', // for list and reply button messages.
 	Location = 'location', // for location messages.
-	Reaction = 'sticker', // for reaction messages.
+	Reaction = 'reaction', // for reaction messages.
 	Sticker = 'sticker', // for sticker messages.
 	Template = 'template', // for template messages. Text and media (images and documents) message templates are supported.
 	Text = 'text', // for text messages.
 	Video = 'video', // for video messages
 }
 
-export const enum ParametersTypesEnum {
+export enum ParametersTypesEnum {
 	Currency = 'currency',
 	DateTime = 'date_time',
 	Document = 'document',
@@ -37,25 +37,28 @@ export const enum ParametersTypesEnum {
 	Payload = 'payload',
 }
 
-export const enum InteractiveTypesEnum {
+export enum InteractiveTypesEnum {
 	Button = 'button',
 	List = 'list',
 	Product = 'product',
 	ProductList = 'product_list',
+	CtaUrl = 'cta_url',
+	Flow = 'flow',
+	LocationRequest = 'location_request_message',
 }
 
-export const enum ButtonTypesEnum {
+export enum ButtonTypesEnum {
 	QuickReply = 'quick_reply',
 	URL = 'url',
 }
 
-export const enum ButtonPositionEnum {
+export enum ButtonPositionEnum {
 	First,
 	Second,
 	Third,
 }
 
-export const enum ComponentTypesEnum {
+export enum ComponentTypesEnum {
 	Header = 'header',
 	Body = 'body',
 	Button = 'button',
@@ -72,7 +75,6 @@ export enum WAConfigEnum {
 	WebhookEndpoint = 'WEBHOOK_ENDPOINT',
 	WebhookVerificationToken = 'WEBHOOK_VERIFICATION_TOKEN',
 	ListenerPort = 'LISTENER_PORT',
-	MaxRetriesAfterWait = 'MAX_RETRIES_AFTER_WAIT',
 	RequestTimeout = 'REQUEST_TIMEOUT',
 	Debug = 'DEBUG',
 }
@@ -82,33 +84,38 @@ export enum WARequiredConfigEnum {
 	AccessToken = 'CLOUD_API_ACCESS_TOKEN',
 }
 
-export const enum ConversationTypesEnum {
+export enum ConversationTypesEnum {
 	BusinessInitiated = 'business_initiated',
 	CustomerInitiated = 'customer_initiated',
 	ReferralConversion = 'referral_conversion',
+	Marketing = 'marketing',
+	Utility = 'utility',
+	Authentication = 'authentication',
+	Service = 'service',
 }
 
-export const enum StatusEnum {
+export enum StatusEnum {
 	Delivered = 'delivered',
 	Read = 'read',
 	Sent = 'sent',
+	Failed = 'failed',
 }
 
-export const enum VideoMediaTypesEnum {
+export enum VideoMediaTypesEnum {
 	Mp4 = 'video/mp4',
 	Threegp = 'video/3gp',
 }
 
-export const enum StickerMediaTypesEnum {
+export enum StickerMediaTypesEnum {
 	Webp = 'image/webp',
 }
 
-export const enum ImageMediaTypesEnum {
+export enum ImageMediaTypesEnum {
 	Jpeg = 'image/jpeg',
 	Png = 'image/png',
 }
 
-export const enum DocumentMediaTypesEnum {
+export enum DocumentMediaTypesEnum {
 	Text = 'text/plain',
 	Pdf = 'application/pdf',
 	Ppt = 'application/vnd.ms-powerpoint',
@@ -119,7 +126,7 @@ export const enum DocumentMediaTypesEnum {
 	OpenSheet = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 }
 
-export const enum AudioMediaTypesEnum {
+export enum AudioMediaTypesEnum {
 	Aac = 'audio/aac',
 	Mp4 = 'audio/mp4',
 	Mpeg = 'audio/mpeg',
@@ -127,9 +134,13 @@ export const enum AudioMediaTypesEnum {
 	Ogg = 'audio/ogg',
 }
 
-export const enum WebhookTypesEnum {
+export enum WebhookTypesEnum {
 	Audio = 'audio',
 	Button = 'button',
+	Contacts = 'contacts',
+	Location = 'location',
+	Reaction = 'reaction',
+	Unsupported = 'unsupported',
 	Document = 'document',
 	Text = 'text',
 	Image = 'image',
@@ -141,22 +152,22 @@ export const enum WebhookTypesEnum {
 	Video = 'video',
 }
 
-export const enum SystemChangeTypesEnum {
+export enum SystemChangeTypesEnum {
 	CustomerChangedNumber = 'customer_changed_number',
 	CustomerIdentityChanged = 'customer_identity_changed',
 }
 
-export const enum ReferralSourceTypesEnum {
+export enum ReferralSourceTypesEnum {
 	Ad = 'ad',
 	Post = 'post',
 }
 
-export const enum RequestCodeMethodsEnum {
+export enum RequestCodeMethodsEnum {
 	Sms = 'SMS',
 	Voice = 'VOICE',
 }
 
-export const enum LanguagesEnum {
+export enum LanguagesEnum {
 	Afrikaans = 'af',
 	Albanian = 'sq',
 	Arabic = 'ar',
@@ -230,7 +241,7 @@ export const enum LanguagesEnum {
 	Zulu = 'zu',
 }
 
-export const enum CurrencyCodesEnum {
+export enum CurrencyCodesEnum {
 	AFN = 'AFN',
 	EUR = 'EUR',
 	ALL = 'ALL',

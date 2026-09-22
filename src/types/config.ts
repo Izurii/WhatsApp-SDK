@@ -27,7 +27,7 @@ export type WAConfigType = {
 	/**
 	 * The Meta for Developers phone number id used by the registered business.
 	 */
-	[WAConfigEnum.PhoneNumberId]: number;
+	[WAConfigEnum.PhoneNumberId]: string | number;
 
 	/**
 	 * The Meta for Developers business id for the registered business.
@@ -62,11 +62,6 @@ export type WAConfigType = {
 	 * To turn on global debugging of the logger to print verbose output across the APIs.
 	 */
 	[WAConfigEnum.Debug]: boolean;
-
-	/**
-	 * The total number of times a request should be retried after the wait period if it fails.
-	 */
-	[WAConfigEnum.MaxRetriesAfterWait]: number;
 
 	/**
 	 * The timeout period for a request to quit and destroy the attempt in ms.

@@ -11,7 +11,7 @@ Request a phone number verification code to be sent via SMS in the english langu
 
 ### Typescript
 ```ts
-import WhatsApp from 'whatsapp';
+import WhatsApp from 'whatsapp-sdk-js';
 
 const senderNumberId = 12345678901234567890;
 const wa = new WhatsApp( senderNumberId );
@@ -26,7 +26,7 @@ wa.phoneNumbers.requestCode( body );
 
 ### Javascript
 ```js
-import WhatsApp from 'whatsapp';
+import WhatsApp from 'whatsapp-sdk-js';
 
 const senderNumberId = 12345678901234567890;
 const wa = new WhatsApp( senderNumberId );

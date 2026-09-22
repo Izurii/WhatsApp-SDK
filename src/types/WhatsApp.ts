@@ -9,9 +9,9 @@
 import { semanticVersionString } from './version';
 
 export declare class WhatsAppClass {
-	constructor(senderNumberId?: number);
+	constructor(senderNumberId?: string | number);
 	version: () => semanticVersionString;
 	updateTimeout(ms: number): boolean;
-	updateSenderNumberId(phoneNumberId: number): boolean;
+	updateSenderNumberId(phoneNumberId: string | number): boolean;
 	updateAccessToken(accessToken: string): boolean;
 }

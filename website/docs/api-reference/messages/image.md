@@ -12,9 +12,9 @@ Send an existing self-hosted or Meta hosted image. Image must be of format:
 ## Example:
 Send a Meta-hosted message and then send an externally hosted image to the phone number `12345678901`.
 ```js
-import WhatsApp from 'whatsapp';
+import WhatsApp from 'whatsapp-sdk-js';
 
-const senderNumber = 12345678901234567890;
+const senderNumber = '12345678901234567890';
 const wa = new WhatsApp( senderNumber );
 
 const meta_hosted_image =
@@ -35,7 +35,7 @@ wa.messages.image( self_hosted_image, 12345678901 );
 
 ## Arguments
 1. `body` : [ImageMediaObject](../types/ImageMediaObject) — the object describing the image to send.
-2. `recipient` : number — the recipient's phone number with country code.
+2. `recipient` : string | number — the recipient's phone number with country code.
 3. `replyMessageId` : string (optional) — the received WhatsApp message Id to reply back to.
 
 ## Returns

@@ -101,6 +101,10 @@ const CUSTOM_IGNORED_PATTERNS = [
 	'^build/.*',
 	'^website/src/.*',
 	'^website/babel\\.config\\.js$',
+	'^eslint\\.config\\.mjs$',
+	'^src/__tests__/webhooks\\.test\\.ts$',
+	'^scripts/check_package\\.mjs$',
+	'^types/index\\.d\\.mts$',
 ].map(createRegExp);
 
 const IGNORED_PATTERNS = [

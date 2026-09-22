@@ -12,23 +12,33 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [16.x, 18.x, 19.x]
-        shard: ['1/4', '2/4', '3/4', '4/4']
+        node-version: [22.x, 24.x]
     name: Node v${{ matrix.node-version }} on ${{ inputs.os }}
     runs-on: ${{ inputs.os }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v7.0.0
         with:
           node-version: ${{ matrix.node-version }}
-          cache: yarn
+      - name: enable Yarn 4
+        run: corepack enable
       - name: install
-        run: yarn --immutable
+        run: yarn install --immutable
       - name: build
         run: yarn build
       - name: run tests using jest
-        run: yarn test --shard=${{ matrix.shard }}
+        run: yarn test:jest --runInBand
+      - name: typecheck
+        run: yarn test:typecheck
+      - name: check CommonJS package entry
+        run: node -e "if (typeof require('./') !== 'function') process.exit(1)"
+      - name: check ESM package entry
+        run: node --input-type=module -e "import WhatsApp from './build/index.js'; if (typeof WhatsApp !== 'function') process.exit(1)"
+      - name: check package contents
+        run: npm pack --dry-run
+      - name: validate isolated package consumer
+        run: yarn test:package

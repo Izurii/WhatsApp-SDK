@@ -22,10 +22,17 @@ import {
 	DocumentMediaTypesEnum,
 } from './enums';
 import { BaseClass } from './base';
+import {
+	ContactObject as MessageContactObject,
+	LocationObject,
+	ReactionObject,
+} from './messages';
 
 type PricingObject = {
 	category: ConversationTypesEnum;
-	pricing_model: 'CBP';
+	pricing_model: 'CBP' | 'PMP';
+	billable?: boolean;
+	type?: 'regular' | 'free_customer_service' | 'free_entry_point';
 };
 
 type OriginObject = {
@@ -35,7 +42,7 @@ type OriginObject = {
 type ConversationObject = {
 	id: string;
 	origin: OriginObject;
-	expiration_timestamp: string;
+	expiration_timestamp?: string;
 };
 
 type ErrorDataObject = {
@@ -45,15 +52,15 @@ type ErrorDataObject = {
 type ErrorObject = {
 	code: number;
 	title: string;
-	message: string;
-	error_data: ErrorDataObject;
+	message?: string;
+	error_data?: ErrorDataObject;
 };
 
 export type StatusesObject = {
-	conversation: ConversationObject;
-	errors: ErrorObject[];
+	conversation?: ConversationObject;
+	errors?: ErrorObject[];
 	id: string;
-	pricing: PricingObject;
+	pricing?: PricingObject;
 	recipient_id: string;
 	status: StatusEnum;
 	timestamp: string;
@@ -62,6 +69,9 @@ export type StatusesObject = {
 type AudioObject = {
 	id: string;
 	mime_type: string;
+	sha256?: string;
+	voice?: boolean;
+	url?: string;
 };
 
 type ButtonObject = {
@@ -70,18 +80,18 @@ type ButtonObject = {
 };
 
 type ConTextObject = {
-	forwarded: boolean;
-	frequently_forwarded: boolean;
-	from: string;
-	id: string;
-	referred_product: {
+	forwarded?: boolean;
+	frequently_forwarded?: boolean;
+	from?: string;
+	id?: string;
+	referred_product?: {
 		catalog_id: string;
 		product_retailer_id: string;
 	};
 };
 
 type DocumentObject = {
-	caption: string;
+	caption?: string;
 	filename: string;
 	sha256: string;
 	mime_type: DocumentMediaTypesEnum;
@@ -95,7 +105,7 @@ type IdentityObject = {
 };
 
 type ImageObject = {
-	caption: string;
+	caption?: string;
 	sha256: string;
 	id: string;
 	mime_type: ImageMediaTypesEnum;
@@ -112,37 +122,42 @@ type ListReplyObject = {
 	list_reply: {
 		id: string;
 		title: string;
-		description: string;
+		description?: string;
 	};
 };
 
-type InteractiveObject = {
-	type: ButtonReplyObject | ListReplyObject;
-};
+type InteractiveObject =
+	| ({ type: 'button_reply' } & ButtonReplyObject)
+	| ({ type: 'list_reply' } & ListReplyObject)
+	| {
+			type: 'nfm_reply';
+			nfm_reply: { name: string; body: string; response_json: string };
+	  };
 
 type ProductItemsObject = {
 	product_retailer_id: string;
-	quantity: string;
-	item_price: string;
+	quantity: string | number;
+	item_price: string | number;
 	currency: CurrencyCodesEnum;
 };
 
 type Order_Object = {
 	catalog_id: string;
 	text: string;
-	product_items: ProductItemsObject;
+	product_items: ProductItemsObject[];
 };
 
 type ReferralObject = {
-	source_url: URL;
+	source_url: string;
 	source_type: ReferralSourceTypesEnum;
 	source_id: string;
 	headline: string;
 	body: string;
-	media_type: ImageMediaTypesEnum | VideoMediaTypesEnum;
-	image_url: URL;
-	video_url: URL;
-	thumbnail_url: URL;
+	media_type?: 'image' | 'video';
+	image_url?: string;
+	video_url?: string;
+	thumbnail_url?: string;
+	ctwa_clid?: string;
 };
 
 type StickerObject = {
@@ -165,8 +180,8 @@ type TextObject = {
 };
 
 type VideoObject = {
-	caption: string;
-	filename: string;
+	caption?: string;
+	filename?: string;
 	sha256: string;
 	id: string;
 	mime_type: VideoMediaTypesEnum;
@@ -175,16 +190,19 @@ type VideoObject = {
 export type MessagesObject = {
 	audio?: AudioObject;
 	button?: ButtonObject;
+	contacts?: MessageContactObject[];
 	context?: ConTextObject;
 	document?: DocumentObject;
-	errors: ErrorObject[];
+	errors?: ErrorObject[];
 	from: string;
 	id: string;
 	identity?: IdentityObject;
 	image?: ImageObject;
 	interactive?: InteractiveObject;
+	location?: LocationObject;
+	reaction?: ReactionObject;
 	order?: Order_Object;
-	referral: ReferralObject;
+	referral?: ReferralObject;
 	sticker?: StickerObject;
 	system?: SystemObject;
 	text?: TextObject;
@@ -204,16 +222,16 @@ type ContactObject = {
 
 type MetadataObject = {
 	display_phone_number: string;
-	phoneNumberId: string;
+	phone_number_id: string;
 };
 
 export type ValueObject = {
 	messaging_product: 'whatsapp';
-	contacts: ContactObject[];
-	errors: ErrorObject[];
-	messages: MessagesObject[];
-	metadata: MetadataObject[];
-	statuses: StatusesObject[];
+	contacts?: ContactObject[];
+	errors?: ErrorObject[];
+	messages?: MessagesObject[];
+	metadata: MetadataObject;
+	statuses?: StatusesObject[];
 };
 
 type ChangesObject = {

@@ -61,14 +61,17 @@ export default class HttpsClient implements HttpsClientClass {
 				port: port,
 				path,
 				method,
-				agent,
-				headers,
 			});
 
-			req.setTimeout(timeout, () => {
-				// TODO: Handle timeout error with error handler CB and custom error code
-				req.destroy();
-			});
+			const deadline = setTimeout(() => {
+				req.destroy(
+					Object.assign(new Error(`Request timed out after ${timeout}ms`), {
+						code: 'ETIMEDOUT',
+					}),
+				);
+			}, timeout);
+			deadline.unref();
+			req.once('close', () => clearTimeout(deadline));
 
 			req.on('response', (resp) => {
 				resolve(new HttpsClientResponse(resp));
@@ -78,23 +81,11 @@ export default class HttpsClient implements HttpsClientClass {
 				reject(error);
 			});
 
-			req.once('socket', (socket) => {
-				if (socket.connecting) {
-					socket.once('secureConnect', () => {
-						LOGGER.log(requestData);
-						if (
-							method === HttpMethodsEnum.Post ||
-							method == HttpMethodsEnum.Put
-						)
-							req.write(requestData);
-						req.end();
-					});
-				} else {
-					if (method === HttpMethodsEnum.Post || method == HttpMethodsEnum.Put)
-						req.write(requestData);
-					req.end();
-				}
-			});
+			req.end(
+				method === HttpMethodsEnum.Post || method === HttpMethodsEnum.Put
+					? requestData
+					: undefined,
+			);
 		});
 	}
 }
@@ -103,6 +94,7 @@ export class HttpsClientResponse implements HttpsClientResponseClass {
 	resp: IncomingMessage;
 	respStatusCode: number;
 	respHeaders: ResponseHeaders;
+	private bodyPromise?: Promise<ResponseJSONBody>;
 
 	constructor(resp: IncomingMessage) {
 		this.resp = resp;
@@ -122,21 +114,13 @@ export class HttpsClientResponse implements HttpsClientResponseClass {
 		return this.resp;
 	}
 
-	async responseBodyToJSON(): Promise<ResponseJSONBody> {
-		return new Promise((resolve, reject) => {
+	responseBodyToJSON(): Promise<ResponseJSONBody> {
+		this.bodyPromise ??= (async () => {
 			let response = '';
-
 			this.resp.setEncoding('utf8');
-			this.resp.on('data', (chunk) => {
-				response += chunk.toString();
-			});
-			this.resp.once('end', () => {
-				try {
-					resolve(JSON.parse(response));
-				} catch (err) {
-					reject(err);
-				}
-			});
-		});
+			for await (const chunk of this.resp) response += chunk;
+			return JSON.parse(response);
+		})();
+		return this.bodyPromise;
 	}
 }

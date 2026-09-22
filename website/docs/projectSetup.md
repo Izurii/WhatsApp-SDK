@@ -10,25 +10,42 @@ Learn the basics for setting up the WhatsApp Business Platform SDK for your Node
 If you new to using the WhatsApp Business Platform Node.js SDK, first follow the provided [quickstart](/) for steps to send your first message and perform basic project setup and configuration.
 
 ### Installation
-You can quickly install the WhatsApp Business Platform Node.js SDK as follows:
 
 ```shell
-npm install whatsapp
+npm install whatsapp-sdk-js
 ```
 
 :::note
-This SDK is for server-side with Node.js only. It does not support web browser or frontend applications.
+This SDK requires server-side Node.js 22.22.2+ and does not support browsers.
 :::
 
 ### Development
-The SDK assumes you are in development mode by default. The logger can be enabled globally in the WhatsApp Business Platform Node.js SDK by setting a **DEBUG** ( or **process.env.DEBUG**) environmental variable to `true`.
+Load configuration before constructing the SDK. For local development, run
+`node --env-file=.env app.js`. The SDK never loads `.env` implicitly. The logger
+can be enabled by setting **DEBUG** to `true` before importing the SDK.
+
+Alternatively, use Node's synchronous loader before importing the SDK:
+
+```js
+require('node:process').loadEnvFile();
+const WhatsApp = require('whatsapp-sdk-js');
+const wa = new WhatsApp();
+```
+
+The application chooses which file to load. The SDK does not asynchronously
+load a file or mutate shared process configuration as an import side effect.
 
 :::warning
-Enabling the logger can log user information, secrets, and other secure information.
+Debug output includes routing identifiers. Treat logs as sensitive. The SDK
+does not log access tokens, app secrets, message bodies, or webhook verification URLs.
 :::
 
 ### Production
-A production system (where `NODE_ENV=production`), does not read from a *.env* file. This is to protect the security posture of having tokens being stored in accessible a file system. The environmental variables need to exist to the application before the WhatsApp class is instantiated.
+Inject environment variables through your deployment's secret management.
+Keep credentials out of source control. Configure a supported Graph API version
+explicitly, pass IDs as strings, and inspect HTTP status codes and webhook
+delivery statuses. Automatic retries are not implemented; retrying sends can
+duplicate delivery.
 
 :::info
 

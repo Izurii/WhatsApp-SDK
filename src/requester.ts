@@ -18,7 +18,7 @@ const LOGGER = new Logger(LIB_NAME, process.env.DEBUG === 'true' || LOG_LOCAL);
 export default class Requester implements RequesterClass {
 	client: Readonly<HttpsClient>;
 	accessToken: Readonly<string>;
-	phoneNumberId: Readonly<number>;
+	phoneNumberId: string | number;
 	businessAcctId: Readonly<string>;
 	apiVersion: Readonly<string>;
 	userAgent: Readonly<string>;
@@ -29,7 +29,7 @@ export default class Requester implements RequesterClass {
 	constructor(
 		host: string,
 		apiVersion: string,
-		phoneNumberId: number,
+		phoneNumberId: string | number,
 		accessToken: string,
 		businessAcctId: string,
 		userAgent: string,

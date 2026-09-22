@@ -9,7 +9,7 @@ Sets the verification pin to the provided 6-digit number. Having a pin for use w
 ## Example:
 Set the two-step verification pin to `123456`.
 ```js
-import WhatsApp from 'whatsapp';
+import WhatsApp from 'whatsapp-sdk-js';
 
 const senderNumberId = 12345678901234567890;
 const wa = new WhatsApp( senderNumberId );

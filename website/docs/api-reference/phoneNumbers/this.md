@@ -4,14 +4,14 @@ title: this
 ---
 
 # Phone numbers class
-This is the phone numbers class that is instantiated by the WhatsApp class. The phone numbers class object can be referenced with <<SDK_NAMESPACE>>.phoneNumbers to access the member functions.
+This is the phone numbers class that is instantiated by the WhatsApp class. The phone numbers class object can be referenced with `wa.phoneNumbers` to access the member functions.
 
 ## Example:
 Request a phone number verification code to be sent via SMS in the english language.
 
 ### Typescript
 ```ts
-import WhatsApp from 'whatsapp';
+import WhatsApp from 'whatsapp-sdk-js';
 
 const senderNumberId = 12345678901234567890;
 const wa = new WhatsApp( senderNumberId );
@@ -26,7 +26,7 @@ wa.phoneNumbers.requestCode( body );
 
 ### Javascript
 ```js
-import WhatsApp from 'whatsapp';
+import WhatsApp from 'whatsapp-sdk-js';
 
 const senderNumberId = 12345678901234567890;
 const wa = new WhatsApp( senderNumberId );

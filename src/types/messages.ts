@@ -30,6 +30,7 @@ export type GeneralMessageBody = GeneralRequestBody & {
 export type StatusObject = {
 	status: 'read';
 	message_id: string;
+	typing_indicator?: { type: 'text' };
 };
 
 export type StatusRequestBody = GeneralMessageBody & StatusObject;
@@ -60,7 +61,7 @@ export type AudioMediaObject = MetaAudioMediaObject | HostedAudioMediaObject;
 
 export type AudioMessageRequestBody =
 	MessageRequestBody<MessageTypesEnum.Audio> & {
-		[MessageTypesEnum.Audio]: [AudioMediaObject];
+		[MessageTypesEnum.Audio]: AudioMediaObject;
 	};
 
 type AddressesObject = {
@@ -94,7 +95,7 @@ type OrgObject = {
 };
 
 type PhoneObject = {
-	phone?: 'PHONE_NUMBER';
+	phone?: string;
 	type?: 'CELL' | 'MAIN' | 'IPHONE' | 'HOME' | 'WORK' | string;
 	wa_id?: string;
 };
@@ -116,7 +117,7 @@ export type ContactObject = {
 
 export type ContactsMessageRequestBody =
 	MessageRequestBody<MessageTypesEnum.Contacts> & {
-		[MessageTypesEnum.Contacts]: [ContactObject];
+		[MessageTypesEnum.Contacts]: ContactObject[];
 	};
 
 type MetaDocumentMediaObject = {
@@ -134,12 +135,11 @@ type HostedDocumentMediaObject = {
 };
 
 export type DocumentMediaObject =
-	| MetaDocumentMediaObject
-	| HostedDocumentMediaObject;
+	MetaDocumentMediaObject | HostedDocumentMediaObject;
 
 export type DocumentMessageRequestBody =
 	MessageRequestBody<MessageTypesEnum.Document> & {
-		[MessageTypesEnum.Document]: [DocumentMediaObject];
+		[MessageTypesEnum.Document]: DocumentMediaObject;
 	};
 
 type MetaImageMediaObject = {
@@ -158,7 +158,7 @@ export type ImageMediaObject = MetaImageMediaObject | HostedImageMediaObject;
 
 export type ImageMessageRequestBody =
 	MessageRequestBody<MessageTypesEnum.Image> & {
-		[MessageTypesEnum.Image]: [ImageMediaObject];
+		[MessageTypesEnum.Image]: ImageMediaObject;
 	};
 
 type ProductObject = {
@@ -204,7 +204,7 @@ type ActionObject = {
 	buttons?: ReplyButtonObject[];
 	catalog_id?: string;
 	product_retailer_id?: string;
-	sections?: SectionObject;
+	sections?: SectionObject[];
 };
 
 type HeaderObject = {
@@ -247,11 +247,50 @@ type ProductListInteractiveObject = {
 	action: ActionObject;
 };
 
+export type CtaUrlInteractiveObject = {
+	type: InteractiveTypesEnum.CtaUrl;
+	body: SimpleTextObject;
+	header?: HeaderObject;
+	footer?: SimpleTextObject;
+	action: {
+		name: 'cta_url';
+		parameters: { display_text: string; url: string };
+	};
+};
+
+export type FlowInteractiveObject = {
+	type: InteractiveTypesEnum.Flow;
+	body: SimpleTextObject;
+	header?: HeaderObject;
+	footer?: SimpleTextObject;
+	action: {
+		name: 'flow';
+		parameters: {
+			flow_message_version: '3';
+			flow_id: string;
+			flow_cta: string;
+			flow_token?: string;
+			mode?: 'draft' | 'published';
+			flow_action?: 'navigate' | 'data_exchange';
+			flow_action_payload?: { screen: string; data?: Record<string, unknown> };
+		};
+	};
+};
+
+export type LocationRequestInteractiveObject = {
+	type: InteractiveTypesEnum.LocationRequest;
+	body: SimpleTextObject;
+	action: { name: 'send_location' };
+};
+
 export type InteractiveObject =
 	| ButtonInteractiveObject
 	| ListInteractiveObject
 	| ProductInteractiveObject
-	| ProductListInteractiveObject;
+	| ProductListInteractiveObject
+	| CtaUrlInteractiveObject
+	| FlowInteractiveObject
+	| LocationRequestInteractiveObject;
 
 export type InteractiveMessageRequestBody =
 	MessageRequestBody<MessageTypesEnum.Interactive> & {
@@ -269,21 +308,22 @@ type HostedStickerMediaObject = {
 };
 
 export type StickerMediaObject =
-	| MetaStickerMediaObject
-	| HostedStickerMediaObject;
+	MetaStickerMediaObject | HostedStickerMediaObject;
 
 export type StickerMessageRequestBody =
 	MessageRequestBody<MessageTypesEnum.Sticker> & {
-		[MessageTypesEnum.Sticker]: [StickerMediaObject];
+		[MessageTypesEnum.Sticker]: StickerMediaObject;
 	};
 
-type ReActionObject = {
+export type ReactionObject = {
 	message_id: string;
 	emoji: string;
 };
 
 export type ReactionMessageRequestBody =
-	MessageRequestBody<MessageTypesEnum.Reaction> & ReActionObject;
+	MessageRequestBody<MessageTypesEnum.Reaction> & {
+		reaction: ReactionObject;
+	};
 
 export type TextObject = {
 	body: string;
@@ -292,7 +332,7 @@ export type TextObject = {
 
 export type TextMessageRequestBody =
 	MessageRequestBody<MessageTypesEnum.Text> & {
-		[MessageTypesEnum.Text]: [TextObject];
+		[MessageTypesEnum.Text]: TextObject;
 	};
 
 type MetaHostedVideoMediaObject = {
@@ -308,17 +348,16 @@ type SelfHostedVideoMediaObject = {
 };
 
 export type VideoMediaObject =
-	| MetaHostedVideoMediaObject
-	| SelfHostedVideoMediaObject;
+	MetaHostedVideoMediaObject | SelfHostedVideoMediaObject;
 
 export type VideoMessageRequestBody =
 	MessageRequestBody<MessageTypesEnum.Video> & {
-		[MessageTypesEnum.Video]: [VideoMediaObject];
+		[MessageTypesEnum.Video]: VideoMediaObject;
 	};
 
 type LanguageObject = {
-	policy: 'deterministic';
-	code: LanguagesEnum;
+	policy?: 'deterministic';
+	code: LanguagesEnum | string;
 };
 
 type ParametersObject<T extends ParametersTypesEnum> = {
@@ -326,7 +365,7 @@ type ParametersObject<T extends ParametersTypesEnum> = {
 };
 
 type TextParametersObject = ParametersObject<ParametersTypesEnum.Text> &
-	SimpleTextObject;
+	SimpleTextObject & { parameter_name?: string };
 
 type CurrencyObject = {
 	fallback_value: string;
@@ -344,18 +383,22 @@ type DateTimeObject = {
 };
 
 type DateTimeParametersObject =
-	ParametersObject<ParametersTypesEnum.Currency> & {
+	ParametersObject<ParametersTypesEnum.DateTime> & {
 		date_time: DateTimeObject;
 	};
 
-type DocumentParametersObject = ParametersObject<ParametersTypesEnum.Document> &
-	DocumentMediaObject;
+type DocumentParametersObject =
+	ParametersObject<ParametersTypesEnum.Document> & {
+		document: DocumentMediaObject;
+	};
 
-type ImageParametersObject = ParametersObject<ParametersTypesEnum.Image> &
-	ImageMediaObject;
+type ImageParametersObject = ParametersObject<ParametersTypesEnum.Image> & {
+	image: ImageMediaObject;
+};
 
-type VideoParametersObject = ParametersObject<ParametersTypesEnum.Video> &
-	VideoMediaObject;
+type VideoParametersObject = ParametersObject<ParametersTypesEnum.Video> & {
+	video: VideoMediaObject;
+};
 
 type QuickReplyButtonParametersObject = {
 	type: ParametersTypesEnum.Payload;
@@ -367,8 +410,7 @@ type URLButtonParametersObject = SimpleTextObject & {
 };
 
 type ButtonParameterObject =
-	| QuickReplyButtonParametersObject
-	| URLButtonParametersObject;
+	QuickReplyButtonParametersObject | URLButtonParametersObject;
 
 type ComponentObject<T extends ComponentTypesEnum> = {
 	type: T;
@@ -382,20 +424,28 @@ type ComponentObject<T extends ComponentTypesEnum> = {
 	)[];
 };
 
-type ButtonComponentObject = ComponentObject<ComponentTypesEnum.Button> & {
-	parameters: ButtonParameterObject;
+type ButtonComponentObject = {
+	type: ComponentTypesEnum.Button;
+	parameters: ButtonParameterObject[];
 	sub_type: ButtonTypesEnum;
-	index: ButtonPositionEnum;
+	index: ButtonPositionEnum | `${number}`;
 };
 
-export type MessageTemplateObject<T extends ComponentTypesEnum> = {
+export type MessageTemplateObject<
+	T extends ComponentTypesEnum = ComponentTypesEnum,
+> = {
 	name: string;
 	language: LanguageObject;
-	components?: (ComponentObject<T> | ButtonComponentObject)[];
+	components?: (
+		| ComponentObject<Exclude<T, ComponentTypesEnum.Button>>
+		| ButtonComponentObject
+	)[];
 };
 
 export type MessageTemplateRequestBody<T extends ComponentTypesEnum> =
-	MessageRequestBody<MessageTypesEnum.Template> & MessageTemplateObject<T>;
+	MessageRequestBody<MessageTypesEnum.Template> & {
+		template: MessageTemplateObject<T>;
+	};
 
 export type LocationObject = {
 	longitude: number;
@@ -406,7 +456,7 @@ export type LocationObject = {
 
 export type LocationMessageRequestBody =
 	MessageRequestBody<MessageTypesEnum.Location> & {
-		[MessageTypesEnum.Location]: [LocationObject];
+		[MessageTypesEnum.Location]: LocationObject;
 	};
 
 export type MessagesResponse = GeneralMessageBody & {
@@ -426,55 +476,59 @@ export type MessagesResponse = GeneralMessageBody & {
 export declare class MessagesClass extends BaseClass {
 	audio(
 		body: AudioMediaObject,
-		recipient: number,
+		recipient: string | number,
 		replyMessageId?: string,
 	): Promise<RequesterResponseInterface<MessagesResponse>>;
 	contacts(
-		body: [ContactObject],
-		recipient: number,
+		body: ContactObject[],
+		recipient: string | number,
 		replyMessageId?: string,
 	): Promise<RequesterResponseInterface<MessagesResponse>>;
 	document(
 		body: DocumentMediaObject,
-		recipient: number,
+		recipient: string | number,
 		replyMessageId?: string,
 	): Promise<RequesterResponseInterface<MessagesResponse>>;
 	image(
 		body: ImageMediaObject,
-		recipient: number,
+		recipient: string | number,
 		replyMessageId?: string,
 	): Promise<RequesterResponseInterface<MessagesResponse>>;
 	interactive(
 		body: InteractiveObject,
-		recipient: number,
+		recipient: string | number,
 		replyMessageId?: string,
 	): Promise<RequesterResponseInterface<MessagesResponse>>;
 	location(
 		body: LocationObject,
-		recipient: number,
+		recipient: string | number,
 		replyMessageId?: string,
 	): Promise<RequesterResponseInterface<MessagesResponse>>;
 	status(
 		body: StatusObject,
+	): Promise<RequesterResponseInterface<{ success: boolean }>>;
+	reaction(
+		body: ReactionObject,
+		recipient: string | number,
 	): Promise<RequesterResponseInterface<MessagesResponse>>;
 	sticker(
 		body: StickerMediaObject,
-		recipient: number,
+		recipient: string | number,
 		replyMessageId?: string,
 	): Promise<RequesterResponseInterface<MessagesResponse>>;
 	template(
 		body: MessageTemplateObject<ComponentTypesEnum>,
-		recipient: number,
+		recipient: string | number,
 		replyMessageId?: string,
 	): Promise<RequesterResponseInterface<MessagesResponse>>;
 	text(
 		body: TextObject,
-		recipient: number,
+		recipient: string | number,
 		replyMessageId?: string,
 	): Promise<RequesterResponseInterface<MessagesResponse>>;
 	video(
 		body: VideoMediaObject,
-		recipient: number,
+		recipient: string | number,
 		replyMessageId?: string,
 	): Promise<RequesterResponseInterface<MessagesResponse>>;
 }

@@ -9,9 +9,9 @@ Change the access token for making requests to the Cloud API. This will override
 ## Example:
 Change the access token to `1234abcd`:
 ```js
-import WhatsApp from 'whatsapp';
+import WhatsApp from 'whatsapp-sdk-js';
 
-const senderNumber = 12345678901234567890;
+const senderNumber = '12345678901234567890';
 const updated_accessToken = "1234abcd";
 const wa = new WhatsApp( senderNumber );
 const was_token_changed = wa.updateAccessToken( updated_accessToken );

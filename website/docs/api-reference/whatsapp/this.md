@@ -9,14 +9,14 @@ This is the main class that is instantiated to create a client for the SDK. Conf
 ## Example:
 Create a new SDK client for the WhatsApp sender phone number Id `12345678901234567890`.
 ```js
-import WhatsApp from 'whatsapp';
+import WhatsApp from 'whatsapp-sdk-js';
 
-const senderNumber = 12345678901234567890;
+const senderNumber = '12345678901234567890';
 const wa = new WhatsApp( senderNumber );
 ```
 
 ## Arguments
-1. `senderNumberId` : number (optional) — The phone number Id of the sender registered in the Cloud API, including the country code (without any symbols). This is not required if `WA_PHONE_NUMBER_ID` is available as an environmental variable (e.g. set in your *.env* file), but is required if it is omitted there. This allows a single app to send using multiple registered numbers.
+1. `senderNumberId` : string | number (optional) — The Meta-assigned phone number ID, not the telephone number itself. Strings are preferred. This is not required if `WA_PHONE_NUMBER_ID` is available as an environmental variable (e.g. set in your *.env* file), but is required if it is omitted there. This allows a single app to send using multiple registered numbers.
 
 ## Returns
 Object — WhatsApp class instance.

@@ -7,6 +7,7 @@
  */
 
 import { IncomingMessage, ServerResponse } from 'http';
+import { timingSafeEqual } from 'node:crypto';
 import * as w from '../types/webhooks';
 import { RequesterClass } from '../types/requester';
 import { WAConfigType } from '../types/config';
@@ -17,7 +18,7 @@ import BaseAPI from './base';
 import Logger from '../logger';
 
 const LIB_NAME = 'WEBHOOKS';
-const LOG_LOCAL = true;
+const LOG_LOCAL = false;
 const LOGGER = new Logger(LIB_NAME, process.env.DEBUG === 'true' || LOG_LOCAL);
 
 export default class WebhooksAPI extends BaseAPI implements w.WebhooksClass {
@@ -34,104 +35,99 @@ export default class WebhooksAPI extends BaseAPI implements w.WebhooksClass {
 	}
 
 	start(cb: w.WebhookCallback): boolean {
+		if (this.isStarted()) throw new Error('Server already started');
+		if (
+			!this.config[WAConfigEnum.AppSecret] ||
+			!this.config[WAConfigEnum.WebhookVerificationToken]
+		) {
+			throw new Error('Webhook app secret and verification token are required');
+		}
 		this.server = new HttpsServer(
 			this.config[WAConfigEnum.ListenerPort],
 			(req: IncomingMessage, res: ServerResponse) => {
 				res.setHeader('User-Agent', this.userAgent);
-
-				if (req.url) {
-					const requestPath = new URL(req.url, `https://${req.headers.host}`);
-					LOGGER.log(
-						`received request (method: ${req.method}) for URL ${requestPath}`,
-					);
-
-					if (
-						requestPath.pathname ==
-						`/${this.config[WAConfigEnum.WebhookEndpoint]}`
-					) {
-						if (req.method === 'GET') {
-							if (
-								requestPath.searchParams.get('hub.mode') == 'subscribe' &&
-								requestPath.searchParams.get('hub.verify_token') ==
-									this.config[WAConfigEnum.WebhookVerificationToken]
-							) {
-								res.write(requestPath.searchParams.get('hub.challenge'));
-								res.end();
-								LOGGER.log(
-									`webhook subscription request from ${requestPath.href} successfully verified`,
-								);
-							} else {
-								const errorMessage = `webhook subscription request from ${requestPath.href} has either missing or non-matching verify token`;
-								const responseStatus = 401;
-
-								LOGGER.log(errorMessage);
-								res.writeHead(responseStatus);
-								res.end();
-								cb(
-									responseStatus,
-									req.headers,
-									undefined,
-									undefined,
-									new Error(errorMessage),
-								);
-							}
-						} else if (
-							req.method === 'POST' &&
-							req.headers['x-hub-signature-256']
-						) {
-							//Removing the prepended 'sha256=' string
-							const xHubSignature = req.headers['x-hub-signature-256']
-								.toString()
-								.replace('sha256=', '');
-
-							let bodyBuf: Buffer[] = [];
-							req.on('data', (chunk) => {
-								bodyBuf = bodyBuf + chunk; // linter bug where push() and "+=" throws an error
-
-								if (bodyBuf.length > 1e6) req.destroy(); // close connection if payload is larger than 1MB for some reason
-							});
-
-							req.on('end', () => {
-								const body = Buffer.concat(bodyBuf).toString();
-
-								const generatedSignature = generateXHub256Sig(
-									body,
-									this.config[WAConfigEnum.AppSecret],
-								);
-
-								const cbBody: w.WebhookObject = JSON.parse(body);
-
-								if (generatedSignature == xHubSignature) {
-									const responseStatus = 200;
-									LOGGER.log(
-										'x-hub-signature-256 header matches generated signature',
-									);
-									cb(responseStatus, req.headers, cbBody, res, undefined);
-								} else {
-									const errorMessage = "error: x-hub signature doesn't match";
-									const responseStatus = 401;
-
-									LOGGER.log(errorMessage);
-									res.writeHead(responseStatus);
-									res.end(errorMessage);
-
-									cb(
-										responseStatus,
-										req.headers,
-										cbBody,
-										undefined,
-										new Error(errorMessage),
-									);
-								}
-							});
-
-							req.on('error', (err) => {
-								const responseStatus = 500;
-								cb(responseStatus, req.headers, undefined, res, err);
-							});
-						}
-					}
+				const fail = (status: number, message: string) => {
+					if (res.writableEnded) return;
+					res.writeHead(status);
+					res.end(message);
+					cb(status, req.headers, undefined, undefined, new Error(message));
+				};
+				let requestPath: URL;
+				try {
+					requestPath = new URL(req.url || '/', 'http://localhost');
+				} catch {
+					fail(400, 'Invalid webhook URL');
+					return;
 				}
+				const endpoint = `/${this.config[WAConfigEnum.WebhookEndpoint].replace(/^\/+/, '')}`;
+				if (requestPath.pathname !== endpoint) {
+					res.writeHead(404).end();
+					return;
+				}
+				if (req.method === 'GET') {
+					const challenge = requestPath.searchParams.get('hub.challenge');
+					if (
+						requestPath.searchParams.get('hub.mode') === 'subscribe' &&
+						requestPath.searchParams.get('hub.verify_token') ===
+							this.config[WAConfigEnum.WebhookVerificationToken] &&
+						challenge !== null
+					) {
+						res.end(challenge);
+					} else {
+						fail(401, 'Invalid webhook verification request');
+					}
+					return;
+				}
+				if (req.method !== 'POST') {
+					res.setHeader('Allow', 'GET, POST');
+					res.writeHead(405).end();
+					return;
+				}
+				const signature = req.headers['x-hub-signature-256'];
+				if (
+					typeof signature !== 'string' ||
+					!/^sha256=[a-f\d]{64}$/i.test(signature)
+				) {
+					fail(401, 'Missing or invalid webhook signature');
+					req.resume();
+					return;
+				}
+				const chunks: Buffer[] = [];
+				let size = 0;
+				req.on('data', (chunk: Buffer) => {
+					if (res.writableEnded) return;
+					size += chunk.length;
+					if (size > 1e6) {
+						chunks.length = 0;
+						fail(413, 'Webhook payload exceeds 1 MB');
+						return;
+					}
+					chunks.push(chunk);
+				});
+				req.on('end', () => {
+					if (res.writableEnded) return;
+					const body = Buffer.concat(chunks);
+					const expected = Buffer.from(
+						generateXHub256Sig(body, this.config[WAConfigEnum.AppSecret]),
+						'hex',
+					);
+					if (
+						!timingSafeEqual(expected, Buffer.from(signature.slice(7), 'hex'))
+					) {
+						fail(401, 'Webhook signature does not match');
+						return;
+					}
+					let parsedBody: w.WebhookObject;
+					try {
+						parsedBody = JSON.parse(body.toString('utf8'));
+					} catch {
+						fail(400, 'Invalid webhook JSON');
+						return;
+					}
+					LOGGER.log('Webhook signature verified');
+					cb(200, req.headers, parsedBody, res, undefined);
+				});
+				req.on('error', () => fail(400, 'Webhook request interrupted'));
 			},
 		);
 

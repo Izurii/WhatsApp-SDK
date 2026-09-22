@@ -11,7 +11,7 @@ Use the verification code "00000" that was received earlier to verify the number
 
 ### Typescript
 ```js
-import WhatsApp from 'whatsapp';
+import WhatsApp from 'whatsapp-sdk-js';
 
 const senderNumberId = 12345678901234567890;
 const wa = new WhatsApp( senderNumberId );
@@ -25,7 +25,7 @@ wa.phoneNumbers.verifyCode( body );
 
 ### Javascript
 ```js
-import WhatsApp from 'whatsapp';
+import WhatsApp from 'whatsapp-sdk-js';
 
 const senderNumberId = 12345678901234567890;
 const wa = new WhatsApp( senderNumberId );

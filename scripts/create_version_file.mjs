@@ -6,7 +6,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import fs from 'graceful-fs';
+import fs from 'node:fs';
+
+const { version } = JSON.parse(
+	fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8'),
+);
 
 const contents = `/**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
@@ -16,8 +20,8 @@ const contents = `/**
  * LICENSE file in the root directory of this source tree.
  */
 
-import { semanticVersionString } from "./types/version";
+import { semanticVersionString } from './types/version';
 
-export const SDKVersion: semanticVersionString = '${process.env.npm_package_version}';
+export const SDKVersion: semanticVersionString = '${version}';
 `;
-fs.writeFile('./src/version.ts', contents);
+fs.writeFileSync(new URL('../src/version.ts', import.meta.url), contents);

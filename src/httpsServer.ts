@@ -21,20 +21,25 @@ export default class Httpserver implements h.HttpserverClass {
 	) {
 		this.sockets = new Set();
 		this.server = createServer(cb).listen(port);
+		this.listening = this.server.listening;
+		this.server.on('listening', () => {
+			this.listening = true;
+		});
+		this.server.on('close', () => {
+			this.listening = false;
+		});
 
 		this.server.on('connection', (socket: Socket) => {
 			this.sockets.add(socket);
-			this.listening = true;
 
-			this.server.once('close', () => {
+			socket.once('close', () => {
 				this.sockets.delete(socket);
-				this.listening = false;
 			});
 		});
 	}
 
 	public isListening() {
-		return this.listening;
+		return this.server.listening;
 	}
 
 	public close(cb?: (err?: Error) => any) {

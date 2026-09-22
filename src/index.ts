@@ -9,3 +9,7 @@
 import WhatsApp from './WhatsApp';
 
 export default WhatsApp;
+
+export type * from './types/messages';
+export type * from './types/webhooks';
+export type * from './types/config';

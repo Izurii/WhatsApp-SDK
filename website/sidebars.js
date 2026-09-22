@@ -19,6 +19,7 @@ const sidebars = {
 		'quickstart',
 		'receivingMessages',
 		'projectSetup',
+		'migration',
 		{
 			type: 'category',
 			label: 'API reference',
@@ -45,6 +46,7 @@ const sidebars = {
 						`api-reference/messages/image`,
 						`api-reference/messages/interactive`,
 						`api-reference/messages/location`,
+						'api-reference/messages/reaction',
 						`api-reference/messages/status`,
 						`api-reference/messages/sticker`,
 						`api-reference/messages/template`,

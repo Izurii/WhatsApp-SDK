@@ -13,7 +13,7 @@ Refers to a previously created quick reply button that allows for the customer t
 ```json
 {
     "type": "payload",
-    "payload": "PAYLOAD_STRING",
+    "payload": "PAYLOAD_STRING"
 }
 ```
 ### Properties
@@ -27,10 +27,10 @@ Refers to a previously created button that allows the customer to visit the URL 
 ```json
 {
     "type": "text",
-    "text": "TEXT_STRING",
+    "text": "TEXT_STRING"
 }
 ```
 
 ### Properties
-1. `formatted_name` : "text" — type of parameter for the button.
+1. `type` : "text" - type of parameter for the button.
 2. `text` : string — developer-provided suffix that is appended to the predefined prefix URL in the template.

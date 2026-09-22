@@ -15,9 +15,9 @@ Send an existing self-hosted or Meta hosted audio file. Supported audio formats:
 ## Example:
 Send a Meta-hosted message and then send an externally hosted audio file to the phone number `12345678901`.
 ```js
-import WhatsApp from 'whatsapp';
+import WhatsApp from 'whatsapp-sdk-js';
 
-const senderNumber = 12345678901234567890;
+const senderNumber = '12345678901234567890';
 const wa = new WhatsApp( senderNumber );
 
 const meta_hosted_audio =
@@ -40,7 +40,7 @@ wa.messages.audio( selfHostedAudio, 12345678901 );
 
 ## Arguments
 1. `body` : [AudioMediaObject](../types/AudioMediaObject) — the object describing the audio file to send.
-2. `recipient` : number — the recipient's phone number with country code.
+2. `recipient` : string | number — the recipient's phone number with country code.
 3. `replyMessageId` : string (optional) — the received WhatsApp message Id to reply back to.
 
 ## Returns
