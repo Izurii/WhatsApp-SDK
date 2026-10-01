@@ -44,7 +44,7 @@ try {
 	]);
 	const consumerRequire = createRequire(path.join(directory, 'package.json'));
 	const installedPackage = consumerRequire(`${packed.name}/package.json`);
-	assert.equal(installedPackage.bin['whatsapp-sdk'], './build/cli.js');
+	assert.equal(installedPackage.bin['whatsapp-sdk'], 'build/cli.js');
 	const binary = path.join(
 		directory,
 		'node_modules',

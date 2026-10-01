@@ -5,7 +5,7 @@
 	"main": "./build/index.js",
 	"types": "./build/index.d.ts",
 	"bin": {
-		"whatsapp-sdk": "./build/cli.js"
+		"whatsapp-sdk": "build/cli.js"
 	},
 	"exports": {
 		".": {
