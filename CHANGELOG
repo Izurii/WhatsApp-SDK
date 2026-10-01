@@ -5,6 +5,15 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.1.0-alpha.3] - 2026-10-01
+### Added
+- Add the `whatsapp-sdk` command line: `send text`, `send template`, `templates list`, `templates get`, `webhooks listen`, `status get`, and `status wait`.
+- Send template header media, named or positional body parameters, text header parameters, and URL, quick reply, copy code, and one-time password button parameters from the command line.
+- Inspect a template's variables, examples, and buttons, with a ready-made parameters file, using `templates get`.
+- Receive message status webhooks and record, query, or wait for a message's status from the command line.
+- Add copy code button parameters (`ButtonTypesEnum.CopyCode`, `ParametersTypesEnum.CouponCode`) to template message types.
+- Type the `message_status` returned when a message is accepted.
+
 ## [0.1.0-alpha.0] - 2026-09-21
 ### Added
 - Publish npm releases from version tags with trusted publishing and verified build artifacts.

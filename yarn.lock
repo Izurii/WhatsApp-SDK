@@ -6687,6 +6687,8 @@ __metadata:
     ts-jest: "npm:^29.4.12"
     ts-node: "npm:^10.9.2"
     typescript: "npm:~6.0.3"
+  bin:
+    whatsapp-sdk: ./build/cli.js
   languageName: unknown
   linkType: soft
 

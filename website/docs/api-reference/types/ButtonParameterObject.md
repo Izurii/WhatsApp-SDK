@@ -4,7 +4,7 @@ title: ButtonParameterObject
 ---
 
 # Button Parameter Object
-The object describing a either a quick reply or URL button parameter for a button type template message component.
+The object describing a quick reply, URL, or copy code button parameter for a button type template message component.
 
 ## Quick reply button
 Refers to a previously created quick reply button that allows for the customer to return a predefined message.
@@ -34,3 +34,18 @@ Refers to a previously created button that allows the customer to visit the URL 
 ### Properties
 1. `type` : "text" - type of parameter for the button.
 2. `text` : string — developer-provided suffix that is appended to the predefined prefix URL in the template.
+
+## Copy code button
+Refers to a previously created button that copies a coupon code to the customer's clipboard. Use it with the `copy_code` button sub type.
+
+### Example
+```json
+{
+    "type": "coupon_code",
+    "coupon_code": "SUMMER25"
+}
+```
+
+### Properties
+1. `type` : "coupon_code" - type of parameter for the button.
+2. `coupon_code` : string — the code to copy, up to 15 characters.

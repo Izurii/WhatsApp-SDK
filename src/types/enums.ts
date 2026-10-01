@@ -28,6 +28,7 @@ export enum MessageTypesEnum {
 }
 
 export enum ParametersTypesEnum {
+	CouponCode = 'coupon_code',
 	Currency = 'currency',
 	DateTime = 'date_time',
 	Document = 'document',
@@ -48,6 +49,7 @@ export enum InteractiveTypesEnum {
 }
 
 export enum ButtonTypesEnum {
+	CopyCode = 'copy_code',
 	QuickReply = 'quick_reply',
 	URL = 'url',
 }

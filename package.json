@@ -1,9 +1,12 @@
 {
 	"name": "whatsapp-sdk-js",
-	"version": "0.1.0-alpha.0",
+	"version": "0.1.0-alpha.3",
 	"description": "SDK for interfacing with WhatsApp Business Platform in Typescript or Node.js using the Cloud API, hosted by Meta.",
 	"main": "./build/index.js",
 	"types": "./build/index.d.ts",
+	"bin": {
+		"whatsapp-sdk": "./build/cli.js"
+	},
 	"exports": {
 		".": {
 			"import": {
@@ -32,7 +35,7 @@
 	},
 	"scripts": {
 		"start": "ts-node ./src/WhatsApp.ts",
-		"build": "node ./scripts/create_version_file.mjs && rimraf ./build && tsc -p tsconfig.json && babel build --out-dir build && rimraf ./build/__tests__/",
+		"build": "node ./scripts/create_version_file.mjs && rimraf ./build && tsc -p tsconfig.json && babel build --out-dir build && rimraf ./build/__tests__/ && node -e \"require('node:fs').chmodSync('build/cli.js', 0o755)\"",
 		"check-changelog": "node ./scripts/check_changelog.mjs",
 		"check-copyright-headers": "node ./scripts/check_copyright_headers.mjs",
 		"create-version-file": "node ./scripts/create_version_file.mjs",
@@ -48,7 +51,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/Izurii/WhatsApp-Js.git"
+		"url": "git+https://github.com/Izurii/WhatsApp-SDK-Js.git"
 	},
 	"keywords": [
 		"WhatsApp",
@@ -63,9 +66,9 @@
 	"author": "Rashed Talukder",
 	"license": "SEE LICENSE IN LICENSE FILE",
 	"bugs": {
-		"url": "https://github.com/Izurii/WhatsApp-Js/issues"
+		"url": "https://github.com/Izurii/WhatsApp-SDK-Js/issues"
 	},
-	"homepage": "https://izurii.github.io/WhatsApp-Js/",
+	"homepage": "https://izurii.github.io/WhatsApp-SDK-Js/",
 	"dependencies": {
 		"@types/node": "^22.20.4"
 	},

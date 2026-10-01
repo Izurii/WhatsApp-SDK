@@ -28,6 +28,10 @@ try {
 	const [packed] = JSON.parse(
 		runNpm(['pack', '--json', '--pack-destination', directory]),
 	);
+	if (process.platform !== 'win32') {
+		const cliFile = packed.files.find((file) => file.path === 'build/cli.js');
+		assert.equal(cliFile?.mode & 0o111, 0o111);
+	}
 	runNpm([
 		'install',
 		'--prefix',
@@ -39,6 +43,26 @@ try {
 		path.join(directory, packed.filename),
 	]);
 	const consumerRequire = createRequire(path.join(directory, 'package.json'));
+	const installedPackage = consumerRequire(`${packed.name}/package.json`);
+	assert.equal(installedPackage.bin['whatsapp-sdk'], './build/cli.js');
+	const binary = path.join(
+		directory,
+		'node_modules',
+		'.bin',
+		process.platform === 'win32' ? 'whatsapp-sdk.cmd' : 'whatsapp-sdk',
+	);
+	assert.equal(fs.existsSync(binary), true);
+	const cliOutput = execFileSync(
+		process.platform === 'win32' ? process.execPath : binary,
+		process.platform === 'win32'
+			? [
+					path.join(directory, 'node_modules', packed.name, 'build/cli.js'),
+					'--version',
+				]
+			: ['--version'],
+		{ encoding: 'utf8' },
+	);
+	assert.equal(cliOutput.trim(), packed.version);
 	const WhatsApp = consumerRequire(packed.name);
 	assert.equal(typeof WhatsApp, 'function');
 	const imported = await import(

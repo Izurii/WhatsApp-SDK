@@ -14,6 +14,8 @@
 
 # Config
 .env
+.template-params.json
+.whatsapp-statuses.jsonl
 
 # Logs
 logs

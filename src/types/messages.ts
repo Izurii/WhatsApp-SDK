@@ -409,8 +409,15 @@ type URLButtonParametersObject = SimpleTextObject & {
 	type: ParametersTypesEnum.Text;
 };
 
+type CouponCodeButtonParametersObject = {
+	type: ParametersTypesEnum.CouponCode;
+	coupon_code: string;
+};
+
 type ButtonParameterObject =
-	QuickReplyButtonParametersObject | URLButtonParametersObject;
+	| CouponCodeButtonParametersObject
+	| QuickReplyButtonParametersObject
+	| URLButtonParametersObject;
 
 type ComponentObject<T extends ComponentTypesEnum> = {
 	type: T;
@@ -469,6 +476,7 @@ export type MessagesResponse = GeneralMessageBody & {
 	messages: [
 		{
 			id: string;
+			message_status?: 'accepted' | 'held_for_quality_assessment' | 'paused';
 		},
 	];
 };

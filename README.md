@@ -26,11 +26,11 @@ supported API features, and integration requirements.
 
 Welcome to SDK for the [WhatsApp Business Platform](https://business.whatsapp.com/products/business-platform/). This SDK is written for Node.js framework to simplify access to the [Cloud API](https://developers.facebook.com/docs/whatsapp/cloud-api/). The source code itself is written in Typescript with TypeScript declaration files to type-check usage of the WhatsApp Business Platform Node.js SDK in your code, along with hints and code completion in TypeScript compatible IDEs.
 
-[![lint, prettify, spellcheck, test, and build](https://github.com/Izurii/WhatsApp-Js/actions/workflows/nodejs.ci.yml/badge.svg)](https://github.com/Izurii/WhatsApp-Js/blob/main/.github/workflows/nodejs.ci.yml)
-[![generate docs](https://github.com/Izurii/WhatsApp-Js/actions/workflows/docusaurus.yml/badge.svg)](https://github.com/Izurii/WhatsApp-Js/blob/main/.github/workflows/docusaurus.yml)
+[![lint, prettify, spellcheck, test, and build](https://github.com/Izurii/WhatsApp-SDK-Js/actions/workflows/nodejs.ci.yml/badge.svg)](https://github.com/Izurii/WhatsApp-SDK-Js/blob/main/.github/workflows/nodejs.ci.yml)
+[![generate docs](https://github.com/Izurii/WhatsApp-SDK-Js/actions/workflows/docusaurus.yml/badge.svg)](https://github.com/Izurii/WhatsApp-SDK-Js/blob/main/.github/workflows/docusaurus.yml)
 
 ## Getting started
-View the [quick start documentation](https://izurii.github.io/WhatsApp-Js/) to learn how to use the SDK and get started.
+View the [quick start documentation](https://izurii.github.io/WhatsApp-SDK-Js/) to learn how to use the SDK and get started.
 
 ## Installation
 
@@ -61,9 +61,129 @@ Install the archive using the filename printed by `npm pack`:
 npm install /path/to/sdk-package.tgz
 ```
 
+## Command line
+
+The package installs a `whatsapp-sdk` command:
+
+```shell
+whatsapp-sdk send text <recipient> <message>
+whatsapp-sdk send template <recipient> <name> <language> [options]
+whatsapp-sdk templates list
+whatsapp-sdk templates get <name>
+whatsapp-sdk webhooks listen
+whatsapp-sdk status get <message-id>
+whatsapp-sdk status wait <message-id>
+```
+
+Run `whatsapp-sdk --help`, or add `--help` after any command, for all options.
+From this repository, run `yarn build` and then `node build/cli.js`.
+
+### Configuration
+
+The command reads `CLOUD_API_ACCESS_TOKEN` and `CLOUD_API_VERSION`, plus
+`WA_PHONE_NUMBER_ID` (the sender's Meta ID) to send messages and
+`WA_BUSINESS_ACCOUNT_ID` to list templates. It loads `.env` from the current
+directory when present, or the file passed with `--env-file <path>`. Variables
+already set in the environment take precedence. Keep env files out of version
+control.
+
+### Sending messages
+
+The recipient is the international phone number, digits only (a leading `+` is
+allowed). Free-form text is only delivered inside an open customer service
+window; use a template otherwise.
+
+```shell
+whatsapp-sdk send text 15555550101 "Your order has shipped"
+whatsapp-sdk send template 15555550101 hello_world en_US
+```
+
+Templates with a media header take `--image-url`, `--video-url`, or
+`--document-url` with a public HTTPS URL. Templates with body parameters take
+`--params-file` with a JSON file: an object for named parameters, or an array
+for positional ones (`{{1}}`, `{{2}}`, ...):
+
+```json
+{
+	"customer_name": "Ana",
+	"order_id": "12345"
+}
+```
+
+```shell
+whatsapp-sdk send template 15555550101 order_update en_US --image-url https://example.com/order.png --params-file params.json
+```
+
+To fill a text header or buttons as well, give the params file sections.
+Buttons are keyed by their index, starting at 0, and take one of `url` (the
+variable part of a URL button), `otp`, `payload` (quick reply), or
+`coupon_code` (copy code):
+
+```json
+{
+	"header": { "customer_name": "Ana" },
+	"body": { "order_id": "12345" },
+	"buttons": { "0": { "url": "12345" } }
+}
+```
+
+Button parameters can also be passed as `--button-url 0=12345`,
+`--button-payload 1=stop`, or `--button-code 2=SAVE10`.
+
+Use `--from <phone-number-id>` to override the sender and `--reply-to <message-id>`
+to reply to a message.
+
+A successful send prints the message ID and Meta's initial status as JSON.
+`accepted` means the request is being processed; it does not confirm delivery.
+Subscribe a public webhook to the WhatsApp Business account's `messages` field
+to receive
+[`sent`, `delivered`, `read`, or `failed` status events](https://developers.facebook.com/documentation/business-messaging/whatsapp/webhooks/reference/messages/status).
+Avoid resending solely because the message has not appeared yet, as a retry can
+create duplicates.
+
+### Listing and inspecting templates
+
+`whatsapp-sdk templates list` prints each template's name, language, category,
+and status as JSON.
+
+`whatsapp-sdk templates get <name>` prints each language version of a template
+(narrow it with `--language pt_BR`): its header format, body and footer text,
+buttons, the variables they take with Meta's examples, a `params_file` ready to
+save for `--params-file`, and the matching `send` command.
+
+### Message status
+
+The Cloud API has no endpoint to look up a message's status: Meta posts
+`sent`, `delivered`, `read`, and `failed` events to your webhook. The command
+can receive them itself. Expose `LISTENER_PORT` through a public HTTPS URL, for
+example with `ngrok http 3000`, set `<url>/<WEBHOOK_ENDPOINT>` as the callback
+URL with `WEBHOOK_VERIFICATION_TOKEN` as the verify token, subscribe to the
+`messages` field, and set `M4D_APP_SECRET` so the signatures can be verified.
+Then:
+
+```shell
+whatsapp-sdk webhooks listen
+whatsapp-sdk status get <message-id>
+whatsapp-sdk status wait <message-id> --until read --timeout 120
+```
+
+`webhooks listen` prints each status event as a JSON line and records it in
+`.whatsapp-statuses.jsonl` (change it with `--store`). `status get` reads the
+latest recorded status. `status wait` returns a recorded status or listens
+until the message reaches it, exiting with `1` if the message fails and `124`
+on timeout. An app has one callback URL, so pointing it to the command stops
+delivery to any other webhook receiver.
+
+### Errors and exit codes
+
+The command exits with `0` on success, `2` on invalid arguments, and `1` on
+configuration, network, or Cloud API errors. Cloud API errors print the HTTP
+status and Meta's numeric error code; add `--verbose` to also print the error
+response.
+
 ## Configuration
-The SDK reads environment variables when constructed. It does not load `.env`
-files automatically. For local development, run `node --env-file=.env app.js`,
+The SDK library reads environment variables when constructed. Unlike the CLI,
+it does not load `.env` files automatically. For local development, run `node --env-file=.env app.js`,
 or load your environment explicitly before creating the client. Production
 applications should inject secrets through their deployment environment.
 Keep sender IDs and recipients as strings to avoid numeric precision loss.
