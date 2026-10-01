@@ -5,6 +5,13 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.1.0-alpha.4] - 2026-10-01
+### Changed
+- Point the repository, issue tracker, homepage, and documentation links to the renamed `Izurii/WhatsApp-SDK` repository.
+
+### Fixed
+- Declare the `whatsapp-sdk` binary with the path npm normalizes to, so publishing no longer rewrites `package.json`.
+
 ## [0.1.0-alpha.3] - 2026-10-01
 ### Added
 - Add the `whatsapp-sdk` command line: `send text`, `send template`, `templates list`, `templates get`, `webhooks listen`, `status get`, and `status wait`.
