@@ -51,7 +51,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/Izurii/WhatsApp-SDK-Js.git"
+		"url": "git+https://github.com/Izurii/WhatsApp-SDK.git"
 	},
 	"keywords": [
 		"WhatsApp",
@@ -66,9 +66,9 @@
 	"author": "Rashed Talukder",
 	"license": "SEE LICENSE IN LICENSE FILE",
 	"bugs": {
-		"url": "https://github.com/Izurii/WhatsApp-SDK-Js/issues"
+		"url": "https://github.com/Izurii/WhatsApp-SDK/issues"
 	},
-	"homepage": "https://izurii.github.io/WhatsApp-SDK-Js/",
+	"homepage": "https://izurii.github.io/WhatsApp-SDK/",
 	"dependencies": {
 		"@types/node": "^22.20.4"
 	},

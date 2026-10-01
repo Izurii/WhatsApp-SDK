@@ -4,7 +4,7 @@ possible.
 
 ## Our Development Process
 This fork is maintained independently by Izurii. Submit pull requests against
-`main` in the [whatsapp-sdk-js repository](https://github.com/Izurii/WhatsApp-Js).
+`main` in the [whatsapp-sdk-js repository](https://github.com/Izurii/WhatsApp-SDK).
 
 ## Pull Requests
 We actively welcome your pull requests.
@@ -16,7 +16,7 @@ We actively welcome your pull requests.
 5. Make sure your code lints.
 
 ## Issues
-We use [GitHub issues](https://github.com/Izurii/WhatsApp-Js/issues) to track public bugs. Please ensure your description is
+We use [GitHub issues](https://github.com/Izurii/WhatsApp-SDK/issues) to track public bugs. Please ensure your description is
 clear and has sufficient instructions to be able to reproduce the issue.
 
 Do not include credentials, private user data, or sensitive vulnerability
@@ -61,7 +61,7 @@ the newly built archive exactly. Different contents require a new version.
 In the npm package's settings, add a GitHub Actions trusted publisher with:
 
 - Owner: `Izurii`
-- Repository: `WhatsApp-Js`
+- Repository: `WhatsApp-SDK`
 - Workflow filename: `publish.yml`
 - Environment: `npm`
 - Allow direct publishing with `npm publish`.

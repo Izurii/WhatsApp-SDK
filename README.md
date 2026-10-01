@@ -26,11 +26,11 @@ supported API features, and integration requirements.
 
 Welcome to SDK for the [WhatsApp Business Platform](https://business.whatsapp.com/products/business-platform/). This SDK is written for Node.js framework to simplify access to the [Cloud API](https://developers.facebook.com/docs/whatsapp/cloud-api/). The source code itself is written in Typescript with TypeScript declaration files to type-check usage of the WhatsApp Business Platform Node.js SDK in your code, along with hints and code completion in TypeScript compatible IDEs.
 
-[![lint, prettify, spellcheck, test, and build](https://github.com/Izurii/WhatsApp-SDK-Js/actions/workflows/nodejs.ci.yml/badge.svg)](https://github.com/Izurii/WhatsApp-SDK-Js/blob/main/.github/workflows/nodejs.ci.yml)
-[![generate docs](https://github.com/Izurii/WhatsApp-SDK-Js/actions/workflows/docusaurus.yml/badge.svg)](https://github.com/Izurii/WhatsApp-SDK-Js/blob/main/.github/workflows/docusaurus.yml)
+[![lint, prettify, spellcheck, test, and build](https://github.com/Izurii/WhatsApp-SDK/actions/workflows/nodejs.ci.yml/badge.svg)](https://github.com/Izurii/WhatsApp-SDK/blob/main/.github/workflows/nodejs.ci.yml)
+[![generate docs](https://github.com/Izurii/WhatsApp-SDK/actions/workflows/docusaurus.yml/badge.svg)](https://github.com/Izurii/WhatsApp-SDK/blob/main/.github/workflows/docusaurus.yml)
 
 ## Getting started
-View the [quick start documentation](https://izurii.github.io/WhatsApp-SDK-Js/) to learn how to use the SDK and get started.
+View the [quick start documentation](https://izurii.github.io/WhatsApp-SDK/) to learn how to use the SDK and get started.
 
 ## Installation
 
